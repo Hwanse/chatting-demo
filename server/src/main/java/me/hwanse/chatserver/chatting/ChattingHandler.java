@@ -10,7 +10,8 @@ public class ChattingHandler extends TextWebSocketHandler {
 
     @Override
     protected void handleTextMessage(WebSocketSession session, TextMessage message) throws Exception {
-        
+        TextMessage welcomeMessage = new TextMessage(message.getPayload());
+        session.sendMessage(welcomeMessage);
     }
 
 }
