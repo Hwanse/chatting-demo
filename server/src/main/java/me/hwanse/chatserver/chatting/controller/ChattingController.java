@@ -4,12 +4,10 @@ import lombok.RequiredArgsConstructor;
 import me.hwanse.chatserver.chatting.ChatRoom;
 import me.hwanse.chatserver.chatting.dto.ChatRoomDto;
 import me.hwanse.chatserver.chatting.service.ChattingService;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @RestController
@@ -20,8 +18,8 @@ public class ChattingController {
     private final ChattingService chattingService;
 
     @PostMapping
-    public ChatRoomDto createChatRoom(String title) {
-        ChatRoom chatRoom = chattingService.createChatRoom(title);
+    public ChatRoomDto createChatRoom(@RequestBody Map<String, String> jsonInput) {
+        ChatRoom chatRoom = chattingService.createChatRoom(jsonInput.get("title"));
         return new ChatRoomDto(chatRoom);
     }
 
