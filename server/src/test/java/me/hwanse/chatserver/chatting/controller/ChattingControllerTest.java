@@ -1,5 +1,6 @@
 package me.hwanse.chatserver.chatting.controller;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import me.hwanse.chatserver.chatting.ChatRoom;
 import me.hwanse.chatserver.chatting.service.ChattingService;
 import org.junit.jupiter.api.DisplayName;
@@ -9,12 +10,11 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
@@ -33,9 +33,12 @@ class ChattingControllerTest {
     @Autowired
     private MockMvc mockMvc;
 
+    @Autowired
+    private ObjectMapper objectMapper;
+
     private final String TITLE = "채팅방 제목";
 
-    private ChatRoom newchatRoom(String title) {
+    private ChatRoom newChatRoom(String title) {
         return new ChatRoom(UUID.randomUUID().toString(), title);
     }
 
@@ -43,15 +46,20 @@ class ChattingControllerTest {
     @DisplayName("채팅방 생성 API")
     public void createChatRoomApi() throws Exception {
         // given
-        ChatRoom room = newchatRoom(TITLE);
-        given(chattingService.createChatRoom(any())).willReturn(room);
+        ChatRoom room = newChatRoom(TITLE);
+        Map<String, String> request = new HashMap<>();
+        request.put("title", TITLE);
+
+        given(chattingService.createChatRoom(TITLE)).willReturn(room);
 
         // when
-        ResultActions resultActions = mockMvc.perform(post("/chattings").content(TITLE));
+        ResultActions resultActions = mockMvc.perform(post("/chattings")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)));
 
         // then
         resultActions.andDo(print())
-                .andExpect(jsonPath("$.id").isNotEmpty())
+                .andExpect(jsonPath("$.id").exists())
                 .andExpect(jsonPath("$.title").value(TITLE))
                 .andExpect(jsonPath("$.userCount").exists());
     }
@@ -62,7 +70,7 @@ class ChattingControllerTest {
         // given
         List<ChatRoom> chatRooms = new ArrayList<>();
         for (int i = 0; i < 10; i++) {
-            chatRooms.add(newchatRoom(TITLE + (i + 1)));
+            chatRooms.add(newChatRoom(TITLE + (i + 1)));
         }
         given(chattingService.findAllChatRooms()).willReturn(chatRooms);
 
