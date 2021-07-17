@@ -1,0 +1,6 @@
+server:
+  servlet:
+    # mockMvc response 출력 시 한글이 깨지는 현상을 다음과 같은 설정으로 해결
+    encoding:
+      charset: UTF-8
+      force-response: true
