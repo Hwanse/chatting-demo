@@ -8,7 +8,7 @@ import me.hwanse.chatserver.chatting.MessageType;
 @Setter
 public class ChattingMessage {
 
-    private Long roomId;
+    private String roomId;
 
     private String sender;
 

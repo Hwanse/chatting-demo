@@ -65,11 +65,10 @@ class ChattingServiceTest {
         ChatRoom room = chattingService.createChatRoom(TITLE);
 
         // when
-        Optional<ChatRoom> result = chattingService.findChatRoomById(room.getId());
+        ChatRoom result = chattingService.findChatRoomById(room.getId());
 
         // then
-        assertThat(result.isPresent()).isTrue();
-        assertThat(result.get()).isNotNull();
+        assertThat(result).isNotNull();
     }
 
 }

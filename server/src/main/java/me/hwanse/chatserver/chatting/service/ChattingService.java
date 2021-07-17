@@ -2,7 +2,9 @@ package me.hwanse.chatserver.chatting.service;
 
 import lombok.RequiredArgsConstructor;
 import me.hwanse.chatserver.chatting.ChatRoom;
+import me.hwanse.chatserver.chatting.dto.ChattingMessage;
 import org.springframework.stereotype.Service;
+import org.springframework.web.socket.WebSocketSession;
 
 import java.util.*;
 
@@ -19,8 +21,8 @@ public class ChattingService {
         return room;
     }
 
-    public Optional<ChatRoom> findChatRoomById(String id) {
-        return Optional.ofNullable(rooms.get(id));
+    public ChatRoom findChatRoomById(String id) {
+        return Optional.ofNullable(rooms.get(id)).orElseThrow(() -> new IllegalArgumentException("채팅방을 조회할 수 없습니다."));
     }
 
     public List<ChatRoom> findAllChatRooms() {

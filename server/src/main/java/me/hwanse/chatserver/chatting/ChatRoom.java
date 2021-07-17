@@ -24,9 +24,13 @@ public class ChatRoom {
         this.title = title;
     }
 
-    public void addUser(WebSocketSession session) {
-        this.sessions.add(session);
+    public void enterUser(WebSocketSession socketSession) {
+        this.sessions.add(socketSession);
         this.userCount++;
     }
 
+    public void leaveUser(WebSocketSession socketSession) {
+        this.sessions.remove(socketSession);
+        this.userCount--;
+    }
 }
