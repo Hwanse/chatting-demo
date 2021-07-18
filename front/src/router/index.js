@@ -1,6 +1,7 @@
 import Vue from "vue";
 import VueRouter from "vue-router";
 import Home from "../views/Home.vue";
+import ChatListView from "../views/chat/ChatListView.vue";
 
 Vue.use(VueRouter);
 
@@ -9,6 +10,7 @@ const routes = [
     path: "/",
     name: "Home",
     component: Home,
+    redirect: "/chat-list"
   },
   {
     path: "/about",
@@ -19,6 +21,11 @@ const routes = [
     component: () =>
       import(/* webpackChunkName: "about" */ "../views/About.vue"),
   },
+  {
+    path: "/chat-list",
+    name: "ChatListView",
+    component: ChatListView,
+  }
 ];
 
 const router = new VueRouter({
