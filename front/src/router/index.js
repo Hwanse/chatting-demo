@@ -2,6 +2,7 @@ import Vue from "vue";
 import VueRouter from "vue-router";
 import Home from "../views/Home.vue";
 import ChatListView from "../views/chat/ChatListView.vue";
+import ChatRoomView from "../views/chat/chatRoom/ChatRoomView.vue"
 
 Vue.use(VueRouter);
 
@@ -25,6 +26,11 @@ const routes = [
     path: "/chat-list",
     name: "ChatListView",
     component: ChatListView,
+  },
+  {
+    path: "/chat/:id",
+    name: "ChatRoomView",
+    component: ChatRoomView
   }
 ];
 

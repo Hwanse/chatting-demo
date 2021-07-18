@@ -1,11 +1,14 @@
 <template>
     <div>
         <v-item-group >
-            <v-list-item>
+            <v-list-item :to="linkTo">
                 <v-list-item-content>
                     <v-list-item-title>
                         {{chatRoom.title}}
                     </v-list-item-title>
+                    <v-list-item-subtitle>
+                        현재 인원 : {{chatRoom.userCount}}
+                    </v-list-item-subtitle>
                 </v-list-item-content>
             </v-list-item>
         </v-item-group>
@@ -19,7 +22,8 @@ export default {
     props: ['chat'],
     data() {
         return {
-            chatRoom: this.chat
+            chatRoom: this.chat,
+            linkTo: `/chat/${this.chat.id}`
         }
     }
 }
