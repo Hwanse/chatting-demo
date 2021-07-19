@@ -1,6 +1,6 @@
 <template>
     <div>
-        <v-dialog v-model="noInputNickname" persistent>
+        <v-dialog v-model="noInputNickname" persistent max-width="500">
             <v-card class="pa-3">
                 <v-row no-gutters>
                     <v-text-field
@@ -18,18 +18,15 @@
         </v-dialog>
 
         <v-card>
-            <div class="chat-container">
+            <div class="chat-container" ref="chatBox">
                 <chat-message v-for="(item, index) in messages" :key="index" :item="item">
-                    <span v-if="item.messageType === 'JOIN'" class="inline-block">
+                    <div v-if="item.messageType === 'JOIN'" class="inline-block text-center rounded">
                         {{item.sender}}님이 입장하셨습니다.
-                    </span>
+                    </div>
                     <div v-if="item.messageType === 'TALK'" class="inline-block">
                         <label v-text="item.sender"></label>
                         <div class="rounded-lg message" v-text="item.message"></div>
                     </div>
-                    <span v-if="item.messageType === 'LEAVE'" class="inline-block">
-                        {{item.sender}}님이 퇴장하셨습니다.
-                    </span>
                 </chat-message>
             </div>
         </v-card>
@@ -44,6 +41,7 @@
                             single-line
                             outlined
                             clearable
+                            hide-details=""
                             @keyup.enter="sendMessage"
                         ></v-text-field>
                     </v-col>
@@ -60,36 +58,23 @@
 <script>
 import SockJS from "sockjs-client";
 import Stomp from "webstomp-client";
-import axios from "axios";
 import ChatMessage from "./parts/ChatMessage.vue"
 
 let websocket
 let stompClient
+let chatContainer
 
 export default {
+    props: ['info'],
     data() {
         return {
             message: '',
-            room: {},
             messages: [],
             sender: '',
             noInputNickname: true
         }
     },
-    created() {
-        this.findRoom()
-    },
     methods: {
-        findRoom() {
-            let roomId = this.$route.params.id
-            axios.get(`${location.protocol}//${location.host}/api/chat-room/${roomId}`)
-                .then(response => {
-                    this.room = response.data
-                })
-                .catch(error => {
-                    console.log(error)
-                })
-        },
         inputNickname() {
             if (!this.sender) return
             this.noInputNickname = false
@@ -101,8 +86,15 @@ export default {
             stompClient.connect({}, this.onConnected, this.onError)
         },
         onConnected() {
-            stompClient.subscribe(`/sub/chat-room/${this.room.id}`, response => {
-                this.messages.push(JSON.parse(response.body)) 
+            stompClient.subscribe(`/sub/chat-room/${this.info.id}`, response => {
+                this.messages.push(JSON.parse(response.body))
+                /**
+                 * Scrollbar end로 조작 시 비동기 데이터를 받고 Dom이 그려진 이후에 동작시켜야 하기 때문에
+                 * 아래와 같은 비동기 콜백 함수 안에 실행되도록 해야한다
+                 */
+                this.$nextTick(() => {
+                    this.controlScroll()
+                })
             })
 
             let data = this.getMessageObject("join", "JOIN")
@@ -114,17 +106,27 @@ export default {
         sendMessage() {
             if (!this.message) return
             let data = this.getMessageObject(this.message, "TALK")
-            this.message = ''
             stompClient.send(`/pub/chat/message`, JSON.stringify(data))
+            this.message = ''
         },
         getMessageObject(content, type) {
             return {
-                roomId: this.room.id,
+                roomId: this.info.id,
                 message: content,
                 sender: this.sender,
                 messageType: type
             }
         },
+        controlScroll() {
+            chatContainer = this.$refs.chatBox
+            let shouldScroll = chatContainer.scrollTop + chatContainer.clientHeight === chatContainer.scrollHeight
+
+            if (!shouldScroll) this.scrollToEnd()
+
+        },
+        scrollToEnd() {
+            chatContainer.scrollTop = chatContainer.scrollHeight
+        }
     },
     components: {
         'chat-message': ChatMessage
@@ -136,12 +138,12 @@ export default {
 .chat-container {
     box-sizing: border-box;
     overflow-y: auto;
-    padding: 1rem;
+    padding: 0.5rem;
     height: calc(100vh - 9.5rem);
     min-height: 30rem;
 }
 .message-form {
     padding: 10px;
-    min-height: 7.5rem;
+    min-height: 5.8rem;
 }
 </style>

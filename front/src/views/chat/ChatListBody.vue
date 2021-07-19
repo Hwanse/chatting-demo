@@ -10,18 +10,6 @@
                     <chat-room-component :key="item.id" :chat="item"></chat-room-component>
                 </template>
             </v-virtual-scroll>
-            
-            <!-- <div class="fixed-button">
-                <v-btn 
-                    fab
-                    dark
-                    color="pink"
-                    @click="changeShowForm"
-                >
-                    <v-icon>mdi-plus</v-icon>
-                </v-btn>
-            </div> -->
-
         </v-card>
     </div>
 </template>
