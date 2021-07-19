@@ -6,9 +6,13 @@ module.exports = {
     proxy: {
       "/api": {
         target: "http://localhost:8081",
-        changeOrigin: true, // cors 문제를 막기위한 옵션
-        // ws: true,   // proxy websocket
+        changeOrigin: true // cors 문제를 막기위한 옵션
       },
+      "/ws/chat": {
+        target: "http://localhost:8081",
+        changeOrigin: true,
+        ws: true // proxy websocket
+      }
     },
   },
 

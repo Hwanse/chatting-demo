@@ -29,4 +29,9 @@ public class ChatRoomController {
                 .map(ChatRoomDto::new).collect(Collectors.toList());
     }
 
+    @GetMapping("/{id}")
+    public ChatRoomDto getChatRoom(@PathVariable Long id) {
+        return new ChatRoomDto(chatRoomService.findChatRoomById(id));
+    }
+
 }
