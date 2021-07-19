@@ -1,12 +1,39 @@
 <template>
     <div>
+        <v-dialog v-model="noInputNickname" persistent>
+            <v-card class="pa-3">
+                <v-row no-gutters>
+                    <v-text-field
+                        v-model="sender"
+                        label="사용할 닉네임을 입력해주세요"
+                        single-line
+                        outlined
+                        clearable
+                        hide-details=""
+                        class="mr-3"
+                    ></v-text-field>
+                    <v-btn x-large color="primary" @click="inputNickname">입장</v-btn>
+                </v-row>
+            </v-card>
+        </v-dialog>
+
         <v-card>
             <div class="chat-container">
-                <div v-for="(item, index) in messages" :key="index"> 
-                    {{item.message}}
-                </div>
+                <chat-message v-for="(item, index) in messages" :key="index" :item="item">
+                    <span v-if="item.messageType === 'JOIN'" class="inline-block">
+                        {{item.sender}}님이 입장하셨습니다.
+                    </span>
+                    <div v-if="item.messageType === 'TALK'" class="inline-block">
+                        <label v-text="item.sender"></label>
+                        <div class="rounded-lg message" v-text="item.message"></div>
+                    </div>
+                    <span v-if="item.messageType === 'LEAVE'" class="inline-block">
+                        {{item.sender}}님이 퇴장하셨습니다.
+                    </span>
+                </chat-message>
             </div>
         </v-card>
+
         <v-card>
             <div class="message-form">
                 <v-row class="mt-3" no-gutters>
@@ -34,6 +61,7 @@
 import SockJS from "sockjs-client";
 import Stomp from "webstomp-client";
 import axios from "axios";
+import ChatMessage from "./parts/ChatMessage.vue"
 
 let websocket
 let stompClient
@@ -44,11 +72,12 @@ export default {
             message: '',
             room: {},
             messages: [],
+            sender: '',
+            noInputNickname: true
         }
     },
     created() {
         this.findRoom()
-        this.setup()
     },
     methods: {
         findRoom() {
@@ -61,30 +90,44 @@ export default {
                     console.log(error)
                 })
         },
-        setup() {
+        inputNickname() {
+            if (!this.sender) return
+            this.noInputNickname = false
+            this.joinChat()
+        },
+        joinChat() {
             websocket = new SockJS(`${location.protocol}//${location.host}/ws/chat`)
             stompClient = Stomp.over(websocket)
             stompClient.connect({}, this.onConnected, this.onError)
         },
         onConnected() {
-            stompClient.send(`/pub/chat/enter`)
-
             stompClient.subscribe(`/sub/chat-room/${this.room.id}`, response => {
                 this.messages.push(JSON.parse(response.body)) 
             })
+
+            let data = this.getMessageObject("join", "JOIN")
+            stompClient.send(`/pub/chat/join`, JSON.stringify(data))
         },
         onError(error) {
             console.log(error)
         },
         sendMessage() {
-            let data = {
-                roomId: this.room.id,
-                message: this.message,
-                sender: 'user'
-            }
+            if (!this.message) return
+            let data = this.getMessageObject(this.message, "TALK")
             this.message = ''
             stompClient.send(`/pub/chat/message`, JSON.stringify(data))
         },
+        getMessageObject(content, type) {
+            return {
+                roomId: this.room.id,
+                message: content,
+                sender: this.sender,
+                messageType: type
+            }
+        },
+    },
+    components: {
+        'chat-message': ChatMessage
     }
 }
 </script>
@@ -101,5 +144,4 @@ export default {
     padding: 10px;
     min-height: 7.5rem;
 }
-
 </style>

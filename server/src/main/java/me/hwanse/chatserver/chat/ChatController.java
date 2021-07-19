@@ -11,13 +11,18 @@ public class ChatController {
 
     private final SimpMessagingTemplate messagingTemplate;
 
-    @MessageMapping("/chat/enter")
+    @MessageMapping("/chat/join")
     public void joinInChat(ChatMessage chatMessage) {
         messagingTemplate.convertAndSend(getDestination(chatMessage.getRoomId()), chatMessage);
     }
 
     @MessageMapping("/chat/message")
     public void sendMessage(ChatMessage chatMessage) {
+        messagingTemplate.convertAndSend(getDestination(chatMessage.getRoomId()), chatMessage);
+    }
+
+    @MessageMapping("/chat/leave")
+    public void leaveTheChat(ChatMessage chatMessage) {
         messagingTemplate.convertAndSend(getDestination(chatMessage.getRoomId()), chatMessage);
     }
 
