@@ -1,17 +1,12 @@
 package me.hwanse.chatserver.chatroom.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import me.hwanse.chatserver.chat.ChatController;
 import me.hwanse.chatserver.chatroom.ChatRoom;
 import me.hwanse.chatserver.chatroom.service.ChatRoomService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
@@ -95,6 +90,27 @@ class ChatRoomControllerTest {
                 .andExpect(jsonPath("$.[0].createdAt").exists())
                 .andExpect(jsonPath("$.[0].deletedAt").isEmpty())
                 .andExpect(jsonPath("$.[0].use").exists());
+    }
+
+    @Test
+    @DisplayName("채팅방 id로 조회")
+    public void getChatRoomApi() throws Exception {
+        // given
+        ChatRoom chatRoom = getChatRoom(1L, TITLE);
+
+        given(chatRoomService.findChatRoomById(any())).willReturn(chatRoom);
+
+        // when
+        ResultActions resultActions = mockMvc.perform(get("/api/chat-room/{id}", chatRoom.getId()));
+
+        // then
+        resultActions.andDo(print())
+                .andExpect(jsonPath("$.id").exists())
+                .andExpect(jsonPath("$.title").exists())
+                .andExpect(jsonPath("$.userCount").exists())
+                .andExpect(jsonPath("$.createdAt").exists())
+                .andExpect(jsonPath("$.deletedAt").isEmpty())
+                .andExpect(jsonPath("$.use").exists());
     }
 
     private ChatRoom getChatRoom(Long id, String title) {

@@ -2,7 +2,6 @@
     <div>
         <chat-room-head></chat-room-head>
         <chat-room-body></chat-room-body>
-        <h2>채팅방</h2>
     </div>
 </template>
 
