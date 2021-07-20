@@ -20,12 +20,14 @@
         <v-card>
             <div class="chat-container" ref="chatBox">
                 <chat-message v-for="(item, index) in messages" :key="index" :item="item">
-                    <div v-if="item.messageType === 'JOIN'" class="inline-block text-center rounded">
+                    <div v-if="item.messageType === 'JOIN'" class="message text-center">
                         {{item.sender}}님이 입장하셨습니다.
                     </div>
-                    <div v-if="item.messageType === 'TALK'" class="inline-block">
-                        <label v-text="item.sender"></label>
-                        <div class="rounded-lg message" v-text="item.message"></div>
+                    <div v-if="item.messageType === 'TALK'" class="message" :class="{own: item.sender === sender}">
+                        <div v-if="item.sender !== sender" v-text="item.sender"></div>
+                        <div class="rounded-lg content">
+                            <div v-text="item.message"></div>
+                        </div>
                     </div>
                 </chat-message>
             </div>
@@ -145,5 +147,22 @@ export default {
 .message-form {
     padding: 10px;
     min-height: 5.8rem;
+}
+.message {
+    margin: 1ch 0;
+}
+.message.own {
+    display: flex;
+    justify-content: flex-end;
+}
+.message .content {
+    display: inline-block;
+    min-width: 1rem;
+    max-width: 15rem;
+    background-color: #ECEFF1;
+    padding: 0.5rem;
+}
+.message.own .content{
+    background-color: #E1F5FE;
 }
 </style>
