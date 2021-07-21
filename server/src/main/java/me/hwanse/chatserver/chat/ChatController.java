@@ -1,17 +1,18 @@
 package me.hwanse.chatserver.chat;
 
 import lombok.RequiredArgsConstructor;
+import me.hwanse.chatserver.chatroom.ChatRoom;
+import me.hwanse.chatserver.chatroom.service.ChatRoomService;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.socket.messaging.SessionConnectEvent;
-import org.springframework.web.socket.messaging.SessionSubscribeEvent;
 
 @Controller
 @RequiredArgsConstructor
 public class ChatController {
 
     private final SimpMessagingTemplate messagingTemplate;
+    private final ChatRoomService chatRoomService;
 
     @MessageMapping("/chat/join")
     public void joinInChat(ChatMessage chatMessage) {
@@ -23,8 +24,10 @@ public class ChatController {
         messagingTemplate.convertAndSend(getDestination(chatMessage.getRoomId()), chatMessage);
     }
 
-    @MessageMapping("/chat/leave")
-    public void leaveTheChat(ChatMessage chatMessage) {
+    @MessageMapping("/chat/monitoring")
+    public void monitoringRoom(ChatMessage chatMessage) {
+        ChatRoom chatRoom = chatRoomService.findChatRoomById(chatMessage.getRoomId());
+        chatMessage.setUserCount(chatRoom.getUserCount());
         messagingTemplate.convertAndSend(getDestination(chatMessage.getRoomId()), chatMessage);
     }
 

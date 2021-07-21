@@ -1,7 +1,7 @@
 <template>
     <div>
         <chat-room-head :info="room"></chat-room-head>
-        <chat-room-body :info="room"></chat-room-body>
+        <chat-room-body :info="room" @reload="updateUserCount"></chat-room-body>
     </div>
 </template>
 
@@ -11,9 +11,11 @@ import ChatRoomBody from "./ChatRoomBody.vue"
 import axios from "axios";
 
 export default {
+    props: ['id'],
     data() {
         return {
-            room: {}
+            room: {},
+            pollingRoomData: null,
         }
     },
     created() {
@@ -21,8 +23,7 @@ export default {
     },
     methods: {
         findRoom() {
-            let roomId = this.$route.params.id
-            axios.get(`${location.protocol}//${location.host}/api/chat-room/${roomId}`)
+            axios.get(`${location.protocol}//${location.host}/api/chat-room/${this.id}`)
                 .then(response => {
                     this.room = response.data
                 })
@@ -30,6 +31,10 @@ export default {
                     console.log(error)
                 })
         },
+        updateUserCount(userCount) {
+            console.log(`update event : ${userCount}`)
+            this.room.userCount = userCount
+        }
     },
     components: {
         'chat-room-head': ChatRoomHead,

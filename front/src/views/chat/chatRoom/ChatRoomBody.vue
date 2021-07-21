@@ -73,7 +73,8 @@ export default {
             message: '',
             messages: [],
             sender: '',
-            noInputNickname: true
+            noInputNickname: true,
+            pollingUserCount: null,
         }
     },
     methods: {
@@ -85,11 +86,24 @@ export default {
         joinChat() {
             websocket = new SockJS(`${location.protocol}//${location.host}/ws/chat`)
             stompClient = Stomp.over(websocket)
-            stompClient.connect({}, this.onConnected, this.onError)
+            new Promise(() => {
+                    stompClient.connect({}, this.onConnected, this.onError)
+                })
+                .then(this.monitoringUserCount())
+                .catch(reason => {
+                    console.log(reason)
+                })
         },
         onConnected() {
             stompClient.subscribe(`/sub/chat-room/${this.info.id}`, response => {
-                this.messages.push(JSON.parse(response.body))
+                let responseData = JSON.parse(response.body)
+                
+                if (responseData.messageType === "MONITOR") {
+                    this.info.userCount = responseData.userCount
+                } else {
+                    this.messages.push(responseData)
+                }
+                
                 /**
                  * Scrollbar end로 조작 시 비동기 데이터를 받고 Dom이 그려진 이후에 동작시켜야 하기 때문에
                  * 아래와 같은 비동기 콜백 함수 안에 실행되도록 해야한다
@@ -100,7 +114,7 @@ export default {
             })
 
             let data = this.getMessageObject("join", "JOIN")
-            stompClient.send(`/pub/chat/join`, JSON.stringify(data))
+            stompClient.send("/pub/chat/join", JSON.stringify(data))
         },
         onError(error) {
             console.log(error)
@@ -108,7 +122,7 @@ export default {
         sendMessage() {
             if (!this.message.trim()) return
             let data = this.getMessageObject(this.message, "TALK")
-            stompClient.send(`/pub/chat/message`, JSON.stringify(data))
+            stompClient.send("/pub/chat/message", JSON.stringify(data))
             this.message = ''
         },
         getMessageObject(content, type) {
@@ -124,11 +138,19 @@ export default {
             let shouldScroll = chatContainer.scrollTop + chatContainer.clientHeight === chatContainer.scrollHeight
 
             if (!shouldScroll) this.scrollToEnd()
-
         },
         scrollToEnd() {
             chatContainer.scrollTop = chatContainer.scrollHeight
+        },
+        monitoringUserCount() {
+            this.pollingUserCount = setInterval(() => {
+                let data = this.getMessageObject(null, "MONITOR")
+                stompClient.send("/pub/chat/monitoring", JSON.stringify(data))
+            }, 1500)
         }
+    },
+    beforeDestroy() {
+        clearInterval(this.pollingUserCount)
     },
     components: {
         'chat-message': ChatMessage
