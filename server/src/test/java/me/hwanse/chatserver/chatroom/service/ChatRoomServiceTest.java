@@ -8,11 +8,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.data.domain.Sort;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
@@ -54,7 +51,8 @@ class ChatRoomServiceTest {
         for (int i = 0; i < count; i++) {
             chatRooms.add(new ChatRoom(TITLE + (i + 1)));
         }
-        given(chatRoomRepository.findAll(Sort.by(Sort.Direction.DESC, "createdAt"))).willReturn(chatRooms);
+
+        given(chatRoomRepository.findByUseTrueOrderByCreatedAtDesc()).willReturn(chatRooms);
 
         // when
         List<ChatRoom> findChatRooms = chatRoomService.findAllChatRooms();

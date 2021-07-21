@@ -118,7 +118,7 @@ class ChatRoomControllerTest {
                 .id(1L)
                 .title(title)
                 .createdAt(LocalDateTime.now())
-                .isUse(true)
+                .use(true)
                 .build();
     }
 
