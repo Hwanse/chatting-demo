@@ -3,8 +3,8 @@ package me.hwanse.chatserver.chatroom.service;
 import lombok.RequiredArgsConstructor;
 import me.hwanse.chatserver.chatroom.ChatRoom;
 import me.hwanse.chatserver.chatroom.repository.ChatRoomRepository;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -24,7 +24,17 @@ public class ChatRoomService {
     }
 
     public List<ChatRoom> findAllChatRooms() {
-        return chatRoomRepository.findAll(Sort.by(Sort.Direction.DESC, "createdAt"));
+        return chatRoomRepository.findByUseTrueOrderByCreatedAtDesc();
+    }
+
+    @Transactional
+    public void increaseChatRoomUserCount(Long roomId) {
+        chatRoomRepository.findById(roomId).ifPresent(ChatRoom::increaseUserCount);
+    }
+
+    @Transactional
+    public void decreaseChatRoomUserCount(Long roomId) {
+        chatRoomRepository.findById(roomId).ifPresent(ChatRoom::decreaseUserCount);
     }
 
 }

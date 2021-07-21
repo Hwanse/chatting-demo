@@ -106,7 +106,7 @@ export default {
             console.log(error)
         },
         sendMessage() {
-            if (!this.message) return
+            if (!this.message.trim()) return
             let data = this.getMessageObject(this.message, "TALK")
             stompClient.send(`/pub/chat/message`, JSON.stringify(data))
             this.message = ''

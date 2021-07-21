@@ -31,12 +31,20 @@ public class ChatRoom {
 
     private LocalDateTime deletedAt;
 
-    private boolean isUse;
+    private boolean use;
 
     public ChatRoom(String title) {
         this.title = title;
         this.createdAt = LocalDateTime.now();
-        this.isUse = true;
+        this.use = true;
+    }
+
+    public void increaseUserCount() {
+        this.userCount++;
+    }
+
+    public void decreaseUserCount() {
+        this.userCount--;
     }
 
 }
