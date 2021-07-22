@@ -40,6 +40,7 @@ class ChatRoomServiceTest {
         // then
         assertThat(saved).isNotNull();
         assertThat(saved).isEqualTo(chatRoom);
+        assertThat(saved.getTitle()).isEqualTo(chatRoom.getTitle());
     }
 
     @Test
