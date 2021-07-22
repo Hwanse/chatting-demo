@@ -1,59 +1,15 @@
 <template>
     <div>
-        <v-dialog v-model="noInputNickname" persistent max-width="500">
-            <v-card class="pa-3">
-                <v-row no-gutters>
-                    <v-text-field
-                        v-model="sender"
-                        label="사용할 닉네임을 입력해주세요"
-                        single-line
-                        outlined
-                        clearable
-                        hide-details=""
-                        class="mr-3"
-                    ></v-text-field>
-                    <v-btn x-large color="primary" @click="inputNickname">입장</v-btn>
-                </v-row>
-            </v-card>
-        </v-dialog>
+        <chat-input-nickname-dialog :isInputNickname="noInputNickname" v-on:@click="inputNickname"></chat-input-nickname-dialog>
 
         <v-card>
             <div class="chat-container" ref="chatBox">
-                <chat-message v-for="(item, index) in messages" :key="index" :item="item">
-                    <div v-if="item.messageType === 'JOIN'" class="message text-center">
-                        {{item.sender}}님이 입장하셨습니다.
-                    </div>
-                    <div v-if="item.messageType === 'TALK'" class="message" :class="{own: item.sender === sender}">
-                        <div v-if="item.sender !== sender" v-text="item.sender"></div>
-                        <div class="rounded-lg content">
-                            <div v-text="item.message"></div>
-                        </div>
-                    </div>
+                <chat-message v-for="(item, index) in messages" :key="index" :item="item" :sender="sender">    
                 </chat-message>
             </div>
         </v-card>
 
-        <v-card>
-            <div class="message-form">
-                <v-row class="mt-3" no-gutters>
-                    <v-col cols="10" class="mr-4">
-                        <v-text-field
-                            v-model="message"
-                            label="메세지를 입력해주세요"
-                            single-line
-                            outlined
-                            clearable
-                            hide-details=""
-                            @keyup.enter="sendMessage"
-                        ></v-text-field>
-                    </v-col>
-                    <v-divider></v-divider>
-                    <v-col>
-                        <v-btn fab depressed @click="sendMessage">전송</v-btn>
-                    </v-col>
-                </v-row>
-            </div>
-        </v-card>
+        <chat-message-send-form v-on:@send="sendMessage"></chat-message-send-form>
     </div>
 </template>
 
@@ -61,6 +17,8 @@
 import SockJS from "sockjs-client";
 import Stomp from "webstomp-client";
 import ChatMessage from "./parts/ChatMessage.vue"
+import ChatInputNicknameDialog from "./parts/ChatInputNicknameDialog.vue"
+import ChatMessageSendForm from "./parts/ChatMessageSendForm.vue"
 
 let websocket
 let stompClient
@@ -78,21 +36,20 @@ export default {
         }
     },
     methods: {
-        inputNickname() {
-            if (!this.sender) return
+        inputNickname(nickname) {
+            if (!nickname.trim()) return
+
+            this.sender = nickname
             this.noInputNickname = false
             this.joinChat()
         },
         joinChat() {
             websocket = new SockJS(`${location.protocol}//${location.host}/ws/chat`)
             stompClient = Stomp.over(websocket)
-            new Promise(() => {
-                    stompClient.connect({}, this.onConnected, this.onError)
-                })
+
+            this.promise(stompClient.connect({}, this.onConnected, this.onError))
                 .then(this.monitoringUserCount())
-                .catch(reason => {
-                    console.log(reason)
-                })
+                .catch(reason => console.log(reason))
         },
         onConnected() {
             stompClient.subscribe(`/sub/chat-room/${this.info.id}`, response => {
@@ -119,8 +76,10 @@ export default {
         onError(error) {
             console.log(error)
         },
-        sendMessage() {
-            if (!this.message.trim()) return
+        sendMessage(message) {
+            if (!message.trim()) return
+            
+            this.message = message
             let data = this.getMessageObject(this.message, "TALK")
             stompClient.send("/pub/chat/message", JSON.stringify(data))
             this.message = ''
@@ -147,13 +106,18 @@ export default {
                 let data = this.getMessageObject(null, "MONITOR")
                 stompClient.send("/pub/chat/monitoring", JSON.stringify(data))
             }, 1500)
+        },
+        promise(running) {
+            return new Promise(() => running)
         }
     },
     beforeDestroy() {
         clearInterval(this.pollingUserCount)
     },
     components: {
-        'chat-message': ChatMessage
+        'chat-message': ChatMessage,
+        'chat-input-nickname-dialog': ChatInputNicknameDialog,
+        'chat-message-send-form': ChatMessageSendForm
     }
 }
 </script>
