@@ -1,7 +1,7 @@
 <template>
     <div>
-        <chat-room-head :info="room"></chat-room-head>
-        <chat-room-body :info="room" @reload="updateUserCount"></chat-room-body>
+        <ChatRoomHead :info="room"></ChatRoomHead>
+        <ChatRoomBody :info="room" @reload="updateUserCount"></ChatRoomBody>
     </div>
 </template>
 
@@ -32,13 +32,12 @@ export default {
                 })
         },
         updateUserCount(userCount) {
-            console.log(`update event : ${userCount}`)
             this.room.userCount = userCount
         }
     },
     components: {
-        'chat-room-head': ChatRoomHead,
-        'chat-room-body': ChatRoomBody
+        ChatRoomHead,
+        ChatRoomBody
     }
 }
 </script>

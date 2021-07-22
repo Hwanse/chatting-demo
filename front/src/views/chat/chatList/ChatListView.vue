@@ -1,7 +1,7 @@
 <template>
     <v-container class="pa-0">
-        <chat-list-head></chat-list-head>
-        <chat-list-body></chat-list-body>
+        <ChatListHead/>
+        <ChatListBody/>
     </v-container>
 </template>
 
@@ -10,12 +10,9 @@ import ChatListHead from "./ChatListHead.vue"
 import ChatListBody from "./ChatListBody.vue"
 
 export default {
-    data() {
-        return {}
-    },
     components: {
-        'chat-list-head': ChatListHead,
-        'chat-list-body': ChatListBody
+        ChatListHead,
+        ChatListBody
     }
 }
 </script>

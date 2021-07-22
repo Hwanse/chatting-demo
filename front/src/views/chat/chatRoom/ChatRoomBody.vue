@@ -1,15 +1,14 @@
 <template>
     <div>
-        <chat-input-nickname-dialog :isInputNickname="noInputNickname" v-on:@click="inputNickname"></chat-input-nickname-dialog>
+        <ChatInputNicknameDialog :isInputNickname="noInputNickname" v-on:@click="inputNickname"/>
 
         <v-card>
             <div class="chat-container" ref="chatBox">
-                <chat-message v-for="(item, index) in messages" :key="index" :item="item" :sender="sender">    
-                </chat-message>
+                <ChatMessage v-for="(item, index) in messages" :key="index" :item="item" :sender="sender"/>    
             </div>
         </v-card>
 
-        <chat-message-send-form v-on:@send="sendMessage"></chat-message-send-form>
+        <ChatMessageSendForm v-on:@send="sendMessage"/>
     </div>
 </template>
 
@@ -115,9 +114,9 @@ export default {
         clearInterval(this.pollingUserCount)
     },
     components: {
-        'chat-message': ChatMessage,
-        'chat-input-nickname-dialog': ChatInputNicknameDialog,
-        'chat-message-send-form': ChatMessageSendForm
+        ChatMessage,
+        ChatInputNicknameDialog,
+        ChatMessageSendForm
     }
 }
 </script>
