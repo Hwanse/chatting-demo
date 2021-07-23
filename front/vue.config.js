@@ -15,6 +15,13 @@ module.exports = {
       }
     },
   },
+  configureWebpack: {
+    resolve: {
+      alias: {
+        "@": path.join(__dirname, "src/")
+      }
+    },
+  },
 
   transpileDependencies: ["vuetify"],
 };
