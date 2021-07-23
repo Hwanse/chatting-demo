@@ -40,11 +40,15 @@ export default {
             this.$emit("@cancel")
         },
         create() {
+            if (!this.title.trim()) return
+
             axios.post(`${location.protocol}//${location.host}/api/chat-room`, 
                         JSON.stringify({title : this.title}),
-                        { headers : {"Content-Type" : "application/json"}}
-                 )
-                 .then(() => this.$router.go())
+                        { headers : {"Content-Type" : "application/json"}})
+                 .then(response => {
+                    this.title = ''
+                    this.$emit("@create", response.data)
+                 })
                  .catch(reason => console.log(reason))
         }
     },
