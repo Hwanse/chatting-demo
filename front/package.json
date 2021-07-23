@@ -8,6 +8,15 @@
     "test:unit": "vue-cli-service test:unit",
     "lint": "vue-cli-service lint"
   },
+  "jest": {
+    "verbose": true,
+    "moduleFileExtensions": [
+      "js", "json", "vue"
+    ],
+    "transform": {
+      ".*\\.(vue)$": "vue-jest"
+    }
+  },
   "dependencies": {
     "axios": "^0.21.1",
     "core-js": "^3.6.5",
