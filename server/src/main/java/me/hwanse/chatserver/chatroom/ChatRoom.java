@@ -44,6 +44,7 @@ public class ChatRoom {
     }
 
     public void decreaseUserCount() {
+        if (userCount <= 0) return;
         this.userCount--;
     }
 

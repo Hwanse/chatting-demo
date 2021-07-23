@@ -1,7 +1,7 @@
 <template>
     <div>
-        <ChatRoomHead :info="room"></ChatRoomHead>
-        <ChatRoomBody :info="room" @reload="updateUserCount"></ChatRoomBody>
+        <ChatRoomHead :info="room"/>
+        <ChatRoomBody :info="room" v-on:@monitoring="updateUserCount"></ChatRoomBody>
     </div>
 </template>
 

@@ -55,7 +55,7 @@ export default {
                 let responseData = JSON.parse(response.body)
                 
                 if (responseData.messageType === "MONITOR") {
-                    this.info.userCount = responseData.userCount
+                    this.$emit("@monitoring", responseData.userCount)
                 } else {
                     this.messages.push(responseData)
                 }
@@ -104,7 +104,7 @@ export default {
             this.pollingUserCount = setInterval(() => {
                 let data = this.getMessageObject(null, "MONITOR")
                 stompClient.send("/pub/chat/monitoring", JSON.stringify(data))
-            }, 1500)
+            }, 2500)
         },
         promise(running) {
             return new Promise(() => running)
