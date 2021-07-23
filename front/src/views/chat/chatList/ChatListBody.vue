@@ -27,6 +27,10 @@ export default {
     },
     mounted() {
         this.getChatList()
+            .then(response => {
+                this.chatList = response.data
+            })
+            .catch(reason => console.log(reason))
     },
     components: {
         ChatRoomListItem,
@@ -34,14 +38,8 @@ export default {
         ChatCreateButton
     },
     methods: {
-        getChatList() {
-            axios.get(`${location.protocol}//${location.host}/api/chat-room`)
-                .then(response => {
-                    this.chatList = response.data
-                })
-                .catch(error => {
-                    console.log(error)
-                })
+        async getChatList() {
+            return await axios.get(`${location.protocol}//${location.host}/api/chat-room`)
         },
         showDialog() {
             this.showCreateDialog = true
