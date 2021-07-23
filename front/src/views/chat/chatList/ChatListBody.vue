@@ -8,7 +8,7 @@
             <ChatCreateButton v-on:@click="showDialog"/>
         </v-card>
 
-        <ChatRoomCreateDialog :show="showCreateDialog" v-on:@cancel="hideDialog"/>
+        <ChatRoomCreateDialog :show="showCreateDialog" v-on:@create="addChatRoom" v-on:@cancel="hideDialog"/>
     </div>
 </template>
 
@@ -48,6 +48,10 @@ export default {
         },
         hideDialog() {
             this.showCreateDialog = false
+        },
+        addChatRoom(item) {
+            this.chatList.unshift(item)
+            this.hideDialog()
         }
     }
 }
