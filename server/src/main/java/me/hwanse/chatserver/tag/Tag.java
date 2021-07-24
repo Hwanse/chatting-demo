@@ -1,15 +1,15 @@
 package me.hwanse.chatserver.tag;
 
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
 
 @Entity
 @Getter
+@Builder(toBuilder = true)
 @NoArgsConstructor
+@AllArgsConstructor
 @EqualsAndHashCode(of = "id")
 public class Tag {
 
@@ -23,7 +23,7 @@ public class Tag {
     private LocalDateTime createdAt;
 
     public Tag(String name) {
-        this.name = name;
+        this.name = name.trim();
         this.createdAt = LocalDateTime.now();
     }
 }

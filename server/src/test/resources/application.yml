@@ -4,3 +4,29 @@ server:
     encoding:
       charset: UTF-8
       force-response: true
+
+spring:
+
+  datasource:
+    driver-class-name: org.h2.Driver
+    url: jdbc:h2:mem:chat-server-test
+    username: sa
+    password:
+  sql:
+    init:
+      mode: never
+
+  jpa:
+    properties:
+      hibernate:
+        format_sql: true
+        default_batch_fetch_size: 100
+    defer-datasource-initialization: true
+
+logging:
+  level:
+    org:
+      hibernate:
+        type:
+          descriptor:
+            sql: trace
