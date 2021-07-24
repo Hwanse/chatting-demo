@@ -43,14 +43,14 @@ class ChatVisitorServiceTest {
         ChatVisitor chatVisitor = new ChatVisitor(chatRoom, sessionId);
 
         given(chatRoomRepository.findById(any())).willReturn(Optional.of(chatRoom));
-        given(chatVisitorRepository.save(chatVisitor)).willReturn(chatVisitor);
+        given(chatVisitorRepository.save(chatVisitor)).willReturn(savedChatVisitor(chatVisitor));
 
         // when
         ChatVisitor saved = chatVisitorService.addChatVisitor(chatRoom.getId(), sessionId);
 
         // then
         assertThat(saved).isNotNull();
-        assertThat(saved).isEqualTo(chatVisitor);
+        assertThat(saved.getId()).isNotNull();
         assertThat(saved.getChatRoom()).isEqualTo(chatRoom);
         assertThat(saved.getSessionId()).isEqualTo(chatVisitor.getSessionId());
     }
@@ -77,6 +77,11 @@ class ChatVisitorServiceTest {
 
         // then
         assertThat(chatRoom.getUserCount()).isLessThan(userCount);
+    }
+
+    private ChatVisitor savedChatVisitor(ChatVisitor chatVisitor) {
+        return chatVisitor.toBuilder()
+                .id(1L).build();
     }
 
 }

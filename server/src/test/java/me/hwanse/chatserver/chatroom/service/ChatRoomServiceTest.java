@@ -32,14 +32,14 @@ class ChatRoomServiceTest {
     public void createChatRoomTest() throws Exception {
         // given
         ChatRoom chatRoom = new ChatRoom(TITLE);
-        given(chatRoomRepository.save(any())).willReturn(chatRoom);
+        given(chatRoomRepository.save(any())).willReturn(savedChatRoom(chatRoom));
 
         // when
         ChatRoom saved = chatRoomService.createChatRoom(TITLE);
 
         // then
         assertThat(saved).isNotNull();
-        assertThat(saved).isEqualTo(chatRoom);
+        assertThat(saved.getId()).isNotNull();
         assertThat(saved.getTitle()).isEqualTo(chatRoom.getTitle());
     }
 
@@ -75,6 +75,11 @@ class ChatRoomServiceTest {
         // then
         assertThat(findRoom).isNotNull();
         assertThat(findRoom).isEqualTo(chatRoom.get());
+    }
+
+    private ChatRoom savedChatRoom(ChatRoom chatRoom) {
+        return chatRoom.toBuilder()
+                .id(1L).build();
     }
 
 }
