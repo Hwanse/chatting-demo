@@ -13,9 +13,9 @@ import java.util.Set;
 
 @Entity
 @Getter
+@Builder(toBuilder = true)
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
 @EqualsAndHashCode(of = "id")
 public class ChatRoom {
 
