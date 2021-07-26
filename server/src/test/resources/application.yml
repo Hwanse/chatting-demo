@@ -21,12 +21,3 @@ spring:
       hibernate:
         format_sql: true
         default_batch_fetch_size: 100
-    defer-datasource-initialization: true
-
-logging:
-  level:
-    org:
-      hibernate:
-        type:
-          descriptor:
-            sql: trace

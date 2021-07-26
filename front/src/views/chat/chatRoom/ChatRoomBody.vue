@@ -6,15 +6,17 @@
             <div class="chat-container" ref="chatBox">
                 <ChatMessage v-for="(item, index) in messages" :key="index" :item="item" :sender="sender"/>    
             </div>
+            
+            <ChatMessageSendForm v-on:@send="sendMessage"/>
         </v-card>
 
-        <ChatMessageSendForm v-on:@send="sendMessage"/>
+        
     </div>
 </template>
 
 <script>
-import SockJS from "sockjs-client";
-import Stomp from "webstomp-client";
+import SockJS from "sockjs-client"
+import Stomp from "webstomp-client"
 import ChatMessage from "./parts/ChatMessage.vue"
 import ChatInputNicknameDialog from "./parts/ChatInputNicknameDialog.vue"
 import ChatMessageSendForm from "./parts/ChatMessageSendForm.vue"
@@ -64,9 +66,7 @@ export default {
                  * Scrollbar end로 조작 시 비동기 데이터를 받고 Dom이 그려진 이후에 동작시켜야 하기 때문에
                  * 아래와 같은 비동기 콜백 함수 안에 실행되도록 해야한다
                  */
-                this.$nextTick(() => {
-                    this.controlScroll()
-                })
+                this.$nextTick(() => this.controlScroll())
             })
 
             let data = this.getMessageObject("join", "JOIN")
@@ -149,5 +149,14 @@ export default {
 }
 .message.own .content{
     background-color: #E1F5FE;
+}
+.slider {
+  height: 100%;
+}
+.slider-slide {
+  /* color: #000; 
+  background-color: #fff; text-align: center;  */
+  font-family: "HelveticaNeue-Light", "Helvetica Neue Light", "Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif; 
+  font-weight: 300; 
 }
 </style>

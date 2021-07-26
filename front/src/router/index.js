@@ -3,6 +3,7 @@ import VueRouter from "vue-router";
 
 import ChatListView from "../views/chat/chatList/ChatListView.vue";
 import ChatRoomView from "../views/chat/chatRoom/ChatRoomView.vue";
+import ChatVoice from "../views/chat/chatRoom/parts/ChatVoice.vue";
 
 Vue.use(VueRouter);
 
@@ -21,6 +22,11 @@ const routes = [
     name: "ChatRoomView",
     component: ChatRoomView,
     props: true
+  },
+  {
+    path: "/voice",
+    name: "Voice",
+    component: ChatVoice
   }
 ];
 
