@@ -4,8 +4,11 @@ import me.hwanse.chatserver.chatroom.ChatRoom;
 import me.hwanse.chatserver.chatroom.ChatVisitor;
 import org.springframework.data.jpa.repository.JpaRepository;
 
-public interface ChatVisitorRepository extends JpaRepository<ChatVisitor, Long> {
+import java.util.List;
+import java.util.Optional;
 
-    ChatVisitor findBySessionId(String sessionId);
+public interface ChatVisitorRepository extends JpaRepository<ChatVisitor, Long>, ChatVisitorCustomRepository {
+
+    Optional<ChatVisitor> findBySessionId(String sessionId);
 
 }

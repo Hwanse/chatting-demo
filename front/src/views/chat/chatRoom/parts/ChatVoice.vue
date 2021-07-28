@@ -1,7 +1,10 @@
 <template>
-    <div>
-        <audio ref="localVoice" autoplay muted playinline></audio>
-        <audio ref="remoteVoice" autoplay muted playinline></audio>
+    <div class="container">
+        <!-- <audio ref="localVoice" autoplay controls ></audio> -->
+        <video ref="localVoice" autoplay muted playinline controls ></video>
+        <video ref="remoteVoice" autoplay muted playinline controls ></video>
+        <!-- <audio ref="remoteVoice" autoplay controls></audio> -->
+        <button @click="call()">call me</button>
     </div>
 </template>
 
@@ -16,14 +19,18 @@ export default {
     data() {
         return {
             config: {
+                video: true,
                 audio: true
             },
             myVoiceStream: null,
+            mySessionId: null,
             peerConnection: null,
+            connections: [],
         }
     },
     created() {
-        this.joinChat()
+        this.setupMyMedia()
+        this.joinChat()    
     },
     methods: {
         setupMyMedia() {
@@ -34,117 +41,140 @@ export default {
         getMyVoiceStream(stream) {
             this.myVoiceStream = stream
             this.$refs.localVoice.srcObject = stream
-            
-            // TODO send to Signalling server
-            this.sendMessage("get user media")
-            // 첫 연결 시작일때 RTCPeerConnection 초기화
-            this.start(stream)
+
         },
-        start(stream) {
-            if (this.myVoiceStream) {
-                this.createPeerConnection()
-                // this.peerConnection.addStream(stream)
-                for (const track of stream.getTracks()) {
-                    this.peerConnection.addTrack(track)
-                }
-    
-                // send offer to peer
-                this.doCall()
-            }
-        },
-        createPeerConnection() {
-            try {
-                this.peerConnection = new RTCPeerConnection(null)
-                this.peerConnection.onicecandidate = this.handleIceCandidate
-                // 아래 stream 관련 처리는 ios 환경에서 제한적이다 따라서 track 이벤트로 대체할 것을 권장
-                // this.peerConnection.onaddstream = this.handleRemoteStreamAdded
-                this.peerConnection.ontrack = this.handleRemoteStreamAdded
-                this.peerConnection.onremovestream = this.handleRemoteStreamRemoved
-            } catch (error) {
-                console.log(error)
-            }
-        },
-        handleIceCandidate(event) {
-            if (event.candidate) {
-                this.sendMessage(
-                    {
-                        type: 'candidate',
-                        label: event.candidate.sdpMLineIndex,
-                        id: event.candidate.sdpMid,
-                        candidate: event.candidate.candidate
+        createPeerConnection(sessionId) {
+            // try {
+                if (!this.connections[sessionId]) {
+                    let connection = new RTCPeerConnection()
+                    this.connections[sessionId] = connection
+                    
+                    for (const track of this.myVoiceStream.getTracks()) {
+                        connection.addTrack(track)
                     }
-                )
+
+                    connection.onicecandidate = () => this.handleIceCandidate(event, sessionId)
+                    connection.ontrack = () => this.handleRemoteStreamAdded(event, sessionId)
+                    // connection.addEventListener("negotiationneeded", async () => {
+                    //     this.createOfferToSignallingServer(connection)
+                    // })
+                }
+            // } catch (error) {
+            //     console.log("create peer error : ", error)
+            // }
+        },
+        handleIceCandidate(event, sessionId) {
+            if (event.candidate) {
+                let data = {
+                    type: "candidate",
+                    fromId: sessionId,
+                    candidate: event.candidate
+                }
+                stompClient.send("/pub/chat/candidate", JSON.stringify(data))
             } else {
                 console.log('End of candidates.')
             }
         },
-        handleRemoteStreamRemoved(event) {
-            console.log('Remote stream removed. Event: ', event)
-        },
+        // handleRemoteStreamAdded(event, sessionId) {
         handleRemoteStreamAdded(event) {
-            console.log('Remote stream added.')
-            this.$refs.remoteVoice = event.streams[0]
+            // let container = document.getElementsByClassName("container")[0]
+            // let video  = document.createElement("video")
+
         },
-        doCall() {
-            this.peerConnection.createOffer(this.setLocalAndSendMessage, this.handleCreateOfferError)
+        createOfferToSignallingServer(connection) {
+            connection.createOffer()
+                    .then(offer => {
+                        return connection.setLocalDescription(offer)
+                    })
+                    .then(() => {
+                        let data = {
+                            fromId: this.mySessionId,
+                            type: connection.localDescription.type,
+                            sdp: connection.localDescription
+                        }
+                        stompClient.send("/pub/chat/offer", JSON.stringify(data))
+                    })
+                    .catch(error => console.log("create offer : ", error))
         },
-        setLocalAndSendMessage(sessionDescription) {
-            this.peerConnection.setLocalDescription(sessionDescription)
-            console.log('setLocalAndSendMessage sending message', sessionDescription)
-            this.sendMessage(sessionDescription)
-        },
-        onCreateSessionDescriptionError(error) {
-            trace('Failed to create session description: ' + error.toString())
-        },
-        handleCreateOfferError(event) {
-            console.log('createOffer() error: ', event)
-        },
-        doAnswer() {
-            console.log('Sending answer to peer.')
-            pc.createAnswer()
-                .then(this.setLocalAndSendMessage, this.onCreateSessionDescriptionError)
+        createAnswerToSignallingServer(connection) {
+            connection.createAnswer()
+                .then(answer => {
+                    return connection.setLocalDescription(answer)
+                })
+                .then(() => {
+                    let data = {
+                        fromId: this.mySessionId,
+                        type: connection.localDescription.type,
+                        sdp: connection.localDescription
+                    }
+                    stompClient.send("/pub/chat/offer", JSON.stringify(data))
+                })
+                // .catch(error => {
+                //     console.log('Failed to create session description: ' + error.toString())
+                // })
         },
         joinChat() {
             websocket = new SockJS(`${location.protocol}//${location.host}/ws/chat`)
-            stompClient = Stomp.over(websocket)
 
-            this.promise(stompClient.connect({}, this.onConnected, this.onError))
-                .then(this.monitoringUserCount())
-                .catch(reason => console.log(reason))
+            // let options = {debug: false, protocols: Stomp.VERSIONS.supportedProtocols()};
+            stompClient = Stomp.over(websocket)
+            stompClient.connect({}, this.onConnected, this.onConnectError)
         },
         onConnected() {
-            stompClient.subscribe(`/sub/chat-room/1`, response => {
-                let responseData = JSON.parse(response.body)
-                console.log(responseData)
-                
-                switch (responseData.type) {
-                    case "OFFER":
-                        break
-                    case "ANSWER":
-                        break
-                    case "CANDIDATE":
-                        break
+            this.bindSessionId()
+            stompClient.subscribe("/sub/chat-room/1/visitors", this.userJoinEvent)
+            stompClient.subscribe(`/sub/chat-room/1/voice`, this.getMessageFromSignallingServer)
 
-                }
+            stompClient.send("/pub/chat/visitors")
+        },
+        onConnectError(error) {
+            console.log("stomp connect error : ", error)
+        },
+        getMessageFromSignallingServer(response) {
+            let message = JSON.parse(response.body)
+            const fromId = message.fromId
 
+            if (fromId === this.mySessionId) return
+
+            switch (message.type) {
+                case "offer":
+                    console.log(fromId, this.mySessionId)
+                    this.connections[this.mySessionId].setRemoteDescription(message.sdp)
+                        .then(() => {
+                            return this.createAnswerToSignallingServer(this.connections[this.mySessionId])
+                        })
+                    break
+                case "answer":
+                    this.connections[this.mySessionId].setRemoteDescription(message.sdp)
+                    break
+                case "candidate":
+                    this.connections[this.mySessionId].addIceCandidate(new RTCIceCandidate(message.candidate))
+                        .catch(error => console.log(error))
+                    break
+            }
+        },
+        bindSessionId() {
+            let regex = /\/ws\/chat\/[0-9]+\/(\w+)\/websocket/g
+            let result = regex.exec(websocket._transport.url)
+            if (result) {
+                this.mySessionId = result[1] ? result[1] : null
+            }
+        },
+        userJoinEvent(response) {
+            let joinedEventData = JSON.parse(response.body)
+            
+            joinedEventData.visitors.forEach(visitor => {
+                this.createPeerConnection(visitor.sessionId)
             })
 
-            let data = this.getMessageObject("join", "JOIN")
-            stompClient.send("/pub/chat/join", JSON.stringify(data))
+            // if (joinedEventData.visitors.length > 1) {
+            //     this.createOfferToSignallingServer(this.connections[this.mySessionId])
+            // }
         },
-        onError(error) {
-            console.log(error)
-        },
-        sendMessage() {
-            stompClient.send("/pub/chat/message", JSON.stringify(data))
-        },
-        getMessageObject(content, type) {
-            return {
-                roomId: 1,
-                message: content,
-                messageType: type
-            }
+        call() {
+            this.createOfferToSignallingServer(this.connections[this.mySessionId])
         }
+
     }
 }
 </script>
