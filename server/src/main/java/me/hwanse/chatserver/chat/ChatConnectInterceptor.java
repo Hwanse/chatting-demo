@@ -28,6 +28,7 @@ public class ChatConnectInterceptor implements ChannelInterceptor {
         if (command == StompCommand.SUBSCRIBE) {
             Long roomId = getRoomId(stompHeaderAccessor.getDestination());
             chatVisitorService.addChatVisitor(roomId, stompHeaderAccessor.getSessionId());
+
         } else if (command == StompCommand.DISCONNECT) {
             chatVisitorService.leaveChatVisitor(stompHeaderAccessor.getSessionId());
         }
@@ -36,7 +37,7 @@ public class ChatConnectInterceptor implements ChannelInterceptor {
     }
 
     private long getRoomId(String destination) {
-        Pattern pattern = Pattern.compile("/sub/chat-room/([0-9]+)$");
+        Pattern pattern = Pattern.compile("^/sub/chat-room/([0-9]+)/.*$");
         Matcher matcher = pattern.matcher(destination);
         if (matcher.matches()) {
             return Long.parseLong(matcher.group(1));

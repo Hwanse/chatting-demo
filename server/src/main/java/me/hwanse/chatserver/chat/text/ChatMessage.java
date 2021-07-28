@@ -1,4 +1,4 @@
-package me.hwanse.chatserver.chat;
+package me.hwanse.chatserver.chat.text;
 
 import lombok.Getter;
 import lombok.Setter;

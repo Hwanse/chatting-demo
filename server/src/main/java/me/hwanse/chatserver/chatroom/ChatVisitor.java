@@ -20,6 +20,7 @@ public class ChatVisitor {
     @JoinColumn(name = "room_id", foreignKey = @ForeignKey(value = ConstraintMode.NO_CONSTRAINT))
     private ChatRoom chatRoom;
 
+    @Column(unique = true)
     private String sessionId;
 
     public ChatVisitor(ChatRoom chatRoom, String sessionId) {

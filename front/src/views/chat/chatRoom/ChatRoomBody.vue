@@ -48,9 +48,9 @@ export default {
             websocket = new SockJS(`${location.protocol}//${location.host}/ws/chat`)
             stompClient = Stomp.over(websocket)
 
-            this.promise(stompClient.connect({}, this.onConnected, this.onError))
-                .then(this.monitoringUserCount())
-                .catch(reason => console.log(reason))
+            this.promise(stompClient.connect({}, this.onConnected, this.onConnectError))
+                // .then(this.monitoringUserCount())
+                // .catch(reason => console.log(reason))
         },
         onConnected() {
             stompClient.subscribe(`/sub/chat-room/${this.info.id}`, response => {
@@ -72,7 +72,7 @@ export default {
             let data = this.getMessageObject("join", "JOIN")
             stompClient.send("/pub/chat/join", JSON.stringify(data))
         },
-        onError(error) {
+        onConnectError(error) {
             console.log(error)
         },
         sendMessage(message) {
@@ -112,6 +112,7 @@ export default {
     },
     beforeDestroy() {
         clearInterval(this.pollingUserCount)
+        // stompClient.disconnect()
     },
     components: {
         ChatMessage,
