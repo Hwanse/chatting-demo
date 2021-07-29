@@ -12,7 +12,7 @@ import java.util.List;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class JoinMessage {
+public class VisitorMessage {
 
     private List<ChatVisitorDto> visitors;
 
