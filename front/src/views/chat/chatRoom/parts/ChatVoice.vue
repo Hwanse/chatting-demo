@@ -1,9 +1,6 @@
 <template>
     <div class="container">
         <audio ref="localAudio" autoplay muted controls></audio>
-        <!-- <audio ref="remoteAudio" autoplay controls></audio> -->
-        <!-- <video ref="localVideo" autoplay playsinline width="320"></video>
-        <video ref="remoteVideo" autoplay playsinline width="320"></video> -->
     </div>
 </template>
 
@@ -13,6 +10,18 @@ import Stomp from "webstomp-client"
 
 let websocket
 let stompClient
+
+window.onbeforeunload = async () => {
+    let index = this.connections.indexOf(this.mySessionId)
+    if (index > -1) {
+        this.connections[this.mySessionId].close()
+        this.connections.splice(index, 1)
+    }
+
+    await stompClient.send("/pub/chat/leave")
+    this.checkVisitor.clearInterval()
+    stompClient.disconnect()
+}
 
 export default {
     data() {
@@ -36,46 +45,42 @@ export default {
         await this.setupMyMedia()
         await this.joinChat()    
     },
-    beforeMount() {
-        window.onbeforeunload = () => {
-            let index = this.connections.indexOf(this.mySessionId)
-            if (index > -1) {
-                this.connections.splice(index, 1)
-            }
-
-            this.checkVisitor.clearInterval()
-            stompClient.disconnect()
-        }
+    beforeDestroy() {
+        this.checkVisitor.clearInterval()
+        stompClient.disconnect()
+        websocket.close()
     },
     methods: {
+        async setupMyMedia() {
+            try {
+                this.myVoiceStream = await navigator.mediaDevices.getUserMedia(this.mediaConfig)
+                this.$refs.localAudio.srcObject = this.myVoiceStream
+                this.$refs.localAudio.muted = true
+                this.$refs.localAudio.volume = 0
+            } catch(error) {
+                console.log("get media error occured : ", error)
+            }
+        },
         async joinChat() {
             websocket = new SockJS(`${location.protocol}//${location.host}/ws/chat`)
             // let options = {debug: false, protocols: Stomp.VERSIONS.supportedProtocols()};
             stompClient = Stomp.over(websocket)
+
             await stompClient.connect({}, this.onConnected, this.onConnectError)
 
-            this.checkVisitor = setInterval(() => {
-                stompClient.send("/pub/chat/visitors")
-            }, 10000)
+            this.checkVisitor = setInterval(() => stompClient.send("/pub/chat/visitors"), 2000)
         },
         onConnected() {
             this.bindSessionId()
             stompClient.subscribe("/sub/chat-room/1/join", this.userJoinEvent)
             stompClient.subscribe(`/user/${this.mySessionId}/sub/chat-room/1/visitors`, this.checkVisitors)
             stompClient.subscribe(`/user/${this.mySessionId}/sub/chat-room/1/voice`, this.getMessageFromSignallingServer)
-            
+            stompClient.subscribe("/sub/chat-room/1/leave", this.handleLeavePeer)
+
             stompClient.send("/pub/chat/voice/join")
         },
         onConnectError(error) {
             console.log("stomp connect error : ", error)
-        },
-        async setupMyMedia() {
-            try {
-                this.myVoiceStream = await navigator.mediaDevices.getUserMedia(this.mediaConfig)
-                this.$refs.localAudio.srcObject = this.myVoiceStream
-            } catch(error) {
-                console.log("get media error occured : ", error)
-            }
         },
         createPeerConnection(sessionId, isReceiveOffer) {
             if (!this.connections[sessionId]) {
@@ -89,6 +94,7 @@ export default {
                 connection.onicecandidate = () => this.handleIceCandidate(event, sessionId)
                 connection.ontrack = () => this.handleRemoteTrackAdded(event, sessionId)
                 connection.onremovetrack = () => this.handleRemovedTrack(event, sessionId)
+                connection.onconnectionstatechange = () => this.handleDisconnected(event, sessionId)
 
                 if (!isReceiveOffer) {
                     connection.addEventListener("negotiationneeded", async () => {
@@ -121,8 +127,22 @@ export default {
 
             container.appendChild(audio)
         },
-        handleRemovedTrack(event, sessionId) {
-            document.getElementById(sessionId)
+        handleDisconnected(event, sessionId) {
+            const connectionStatus = this.connections[sessionId].connectionState;
+            if (["disconnected", "failed", "closed"].includes(connectionStatus)) {
+                const audioElement = document.getElementById(sessionId)
+                if (audioElement) {
+                    audioElement.remove()
+                }
+                stompClient.send("/pub/chat/leave-noti", JSON.stringify({sessionId: sessionId}))
+            }
+        },
+        handleLeavePeer(response) {
+            const sessionId = JSON.parse(response.body).sessionId
+            const audioElement = document.getElementById(sessionId)
+            if (audioElement) {
+                audioElement.remove()
+            }
         },
         async createOfferToSignallingServer(connection, toId) {
             const offer = await connection.createOffer()  
@@ -183,13 +203,6 @@ export default {
                 if (isDeleteFlags[sessionId])
                     this.connections.splice(index, 1)
             }
-
-            // visitors.forEach(visitor => {
-            //     if (visitor.sessionId !== this.mySessionId) {
-            //         this.createPeerConnection(visitor.sessionId, false)
-            //     }
-            // })
-
         },
         getSdpMessage(connection, toId) {
             return {

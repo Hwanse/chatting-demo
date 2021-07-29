@@ -45,8 +45,4 @@ public class ChatVisitorService {
                 });
     }
 
-    public void sendMessage(String message) {
-
-    }
-
 }

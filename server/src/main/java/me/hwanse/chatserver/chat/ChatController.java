@@ -11,10 +11,12 @@ import me.hwanse.chatserver.chatroom.dto.ChatVisitorDto;
 import me.hwanse.chatserver.chatroom.service.ChatRoomService;
 import me.hwanse.chatserver.chatroom.service.ChatVisitorService;
 import org.springframework.messaging.handler.annotation.MessageMapping;
+import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Controller;
 
+import javax.servlet.http.HttpSession;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -28,6 +30,7 @@ public class ChatController {
     private final SimpMessagingTemplate messagingTemplate;
     private final ChatRoomService chatRoomService;
     private final ChatVisitorService chatVisitorService;
+    private final HttpSession session;
 
     // =========== 텍스트 채팅 관련 ==============
     @MessageMapping("/chat/join")
@@ -65,13 +68,17 @@ public class ChatController {
     @MessageMapping("/chat/offer")
     public void sendVoiceToPeers(SdpMessage message) {
         messagingTemplate.convertAndSendToUser(message.getToId(), "/sub/chat-room/1/voice", message);
-//        messagingTemplate.convertAndSend("/sub/chat-room/1/voice", message);
     }
 
     @MessageMapping("/chat/candidate")
     public void sendVoiceToPeers(IceMessage message, SimpMessageHeaderAccessor headerAccessor) {
-//        messagingTemplate.convertAndSend("/sub/chat-room/1/voice", message);
         messagingTemplate.convertAndSendToUser(message.getToId(), "/sub/chat-room/1/voice", message);
+    }
+
+    @MessageMapping("/chat/leave-noti")
+    public void leaveChatNotification(@Payload String sessionId) {
+        chatVisitorService.leaveChatVisitor(sessionId);
+        messagingTemplate.convertAndSend("/sub/chat-room/1/leave", sessionId);
     }
 
     private String getDestination(Long roomId) {
