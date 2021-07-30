@@ -31,7 +31,6 @@ public class ChatController {
     private final SimpMessagingTemplate messagingTemplate;
     private final ChatRoomService chatRoomService;
     private final ChatVisitorService chatVisitorService;
-    private final HttpSession session;
 
     // =========== 텍스트 채팅 관련 ==============
     @MessageMapping("/chat/join")

@@ -58,13 +58,12 @@ export default {
 <style>
 .create-button-position {
     position: absolute;
-    top: 85%;
+    top: 80%;
     right: 7%;
 }
 .list-container {
     box-sizing: border-box;
     overflow-y: auto;
-    height: calc(100vh - 4rem);
-    min-height: 30rem;
+    height: 92vh;
 }
 </style>

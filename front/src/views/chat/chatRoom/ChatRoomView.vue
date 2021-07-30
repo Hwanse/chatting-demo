@@ -1,5 +1,5 @@
 <template>
-    <div>
+    <div class="chat-room-container">
         <ChatRoomHead :info="room"/>
         <ChatRoomBody :info="room" v-on:@monitoring="updateUserCount"></ChatRoomBody>
     </div>
