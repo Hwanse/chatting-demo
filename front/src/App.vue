@@ -1,12 +1,10 @@
 <template>
-  <v-app>
-    
-    <div class="app-body">
-      <v-main>
-        <router-view />
-      </v-main>
-    </div>
-    
+  <v-app >
+      <div class="app">
+        <v-main>
+          <router-view />
+        </v-main>
+      </div>
   </v-app>
 </template>
 
@@ -21,10 +19,12 @@ export default {
 </script>
 
 <style>
-.app-body {
-  max-width: 650px !important;
-  min-width: 500px !important;
-  margin-left: auto !important;
-  margin-right: auto !important;
+html, body {
+  display: flex;
+  justify-content: center;
+}
+.app {
+  width: 100vmin;
+  height: 100vmin;
 }
 </style>

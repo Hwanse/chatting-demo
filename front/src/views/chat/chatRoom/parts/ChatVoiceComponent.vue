@@ -12,6 +12,7 @@ let websocket
 let stompClient
 
 export default {
+    props: ["roomId", "inputNickname"],
     data() {
         return {
             mediaConfig: {
@@ -29,12 +30,13 @@ export default {
             checkVisitor: null,
         }
     },
-    async created() {
-        await this.setupMyMedia()
-        await this.joinChat()    
-    },
-    mounted() {
-        window.addEventListener("beforeunload", this.closeEvent())
+    watch: {
+        async inputNickname(nickname) {
+            if (nickname) {
+                await this.setupMyMedia()
+                await this.joinChat()    
+            }
+        }
     },
     methods: {
         async setupMyMedia() {
@@ -55,13 +57,14 @@ export default {
             await stompClient.connect({}, this.onConnected, this.onConnectError)
 
             this.checkVisitor = setInterval(() => stompClient.send("/pub/chat/visitors"), 2000)
+            window.addEventListener("beforeunload", this.closeEvent)
         },
         onConnected() {
             this.bindSessionId()
-            stompClient.subscribe("/sub/chat-room/1/join", this.userJoinEvent)
-            stompClient.subscribe(`/user/${this.mySessionId}/sub/chat-room/1/visitors`, this.checkVisitors)
-            stompClient.subscribe(`/user/${this.mySessionId}/sub/chat-room/1/voice`, this.getMessageFromSignallingServer)
-            stompClient.subscribe("/sub/chat-room/1/leave", this.handleLeavePeer)
+            stompClient.subscribe(`/sub/chat-room/${this.roomId}/join`, this.userJoinEvent)
+            stompClient.subscribe(`/user/${this.mySessionId}/sub/chat-room/${this.roomId}/visitors`, this.checkVisitors)
+            stompClient.subscribe(`/user/${this.mySessionId}/sub/chat-room/${this.roomId}/voice`, this.getMessageFromSignallingServer)
+            stompClient.subscribe(`/sub/chat-room/${this.roomId}/leave`, this.handleLeavePeer)
 
             stompClient.send("/pub/chat/voice/join")
         },
@@ -77,10 +80,10 @@ export default {
                     connection.addTrack(track)
                 }
 
-                connection.onicecandidate = () => this.handleIceCandidate(event, sessionId)
-                connection.ontrack = () => this.handleRemoteTrackAdded(event, sessionId)
-                connection.onremovetrack = () => this.handleRemovedTrack(event, sessionId)
-                connection.onconnectionstatechange = () => this.handleDisconnected(event, sessionId)
+                connection.onicecandidate = () => this.handleIceCandidate(sessionId)
+                connection.ontrack = () => this.handleRemoteTrackAdded(sessionId)
+                connection.onremovetrack = () => this.handleRemovedTrack(sessionId)
+                connection.onconnectionstatechange = () => this.handleDisconnected(sessionId)
 
                 if (!isReceiveOffer) {
                     connection.addEventListener("negotiationneeded", async () => {
@@ -89,7 +92,7 @@ export default {
                 }
             }
         },
-        handleIceCandidate(event, sessionId) {
+        handleIceCandidate(sessionId) {
             if (event.candidate) {
                 let data = {
                     type: "candidate",
@@ -102,7 +105,7 @@ export default {
                 console.log('End of candidates.')
             }
         },
-        handleRemoteTrackAdded(event, sessionId) {
+        handleRemoteTrackAdded(sessionId) {
             const container = document.getElementsByClassName("container")[0]
             const audio = document.createElement("audio")
 
@@ -113,14 +116,20 @@ export default {
 
             container.appendChild(audio)
         },
-        handleDisconnected(event, sessionId) {
+        handleDisconnected(sessionId) {
             const connectionStatus = this.connections[sessionId].connectionState;
             if (["disconnected", "failed", "closed"].includes(connectionStatus)) {
                 let leaveMessage = {
-                    roomId: 1,
+                    roomId: this.roomId,
                     sessionId: sessionId
                 }
+
                 stompClient.send("/pub/chat/leave-noti", JSON.stringify(leaveMessage))
+
+                let index = this.connections.indexOf(sessionId)
+                if (index > -1) {
+                    this.connections.splice(index, 1)
+                }
             }
         },
         handleLeavePeer(response) {
@@ -174,20 +183,7 @@ export default {
         },
         checkVisitors(response) {
             let visitors = JSON.parse(response.body).visitors
-            let isDeleteFlags = []
-
-            for (const sessionId in this.connections) {
-                let index
-                isDeleteFlags[sessionId] = true
-
-                visitors.forEach(visitor => {
-                    index = this.connections.indexOf(visitor.sessionId)
-                    if (index > -1) isDeleteFlags[visitor.sessionId] = false
-                })
- 
-                if (isDeleteFlags[sessionId])
-                    this.connections.splice(index, 1)
-            }
+            console.log(visitors)
         },
         getSdpMessage(connection, toId) {
             return {
@@ -204,8 +200,8 @@ export default {
                 this.mySessionId = result[1] ? result[1] : null
             }
         },
-        closeEvent() {
-            this.checkVisitor.clearInterval()
+        closeEvent(event) {
+            event.preventDefault()
             stompClient.disconnect()
             websocket.close()
         }
