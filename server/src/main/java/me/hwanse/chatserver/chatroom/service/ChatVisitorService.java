@@ -1,5 +1,6 @@
 package me.hwanse.chatserver.chatroom.service;
 
+import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import me.hwanse.chatserver.chatroom.ChatRoom;
 import me.hwanse.chatserver.chatroom.ChatVisitor;
@@ -37,10 +38,20 @@ public class ChatVisitorService {
 
     @Transactional
     public void leaveChatVisitor(String sessionId) {
-        chatVisitorRepository.findBySessionId(sessionId)
+        List<ChatVisitor> chatVisitors = chatVisitorRepository.findBySessionId(sessionId);
+        if (!chatVisitors.isEmpty()) {
+            for (ChatVisitor visitor : chatVisitors) {
+                visitor.getChatRoom().decreaseUserCount();
+            }
+            chatVisitorRepository.deleteAll(chatVisitors);
+        }
+    }
+
+    @Transactional
+    public void leaveChatVisitorInChatRoom(Long roomId, String sessionId) {
+        chatVisitorRepository.findByChatRoomIdAndSessionId(roomId, sessionId)
                 .ifPresent(chatVisitor -> {
-                    Long roomId = chatVisitor.getChatRoom().getId();
-                    chatRoomRepository.findById(roomId).ifPresent(ChatRoom::decreaseUserCount);
+                    chatVisitor.getChatRoom().decreaseUserCount();
                     chatVisitorRepository.delete(chatVisitor);
                 });
     }

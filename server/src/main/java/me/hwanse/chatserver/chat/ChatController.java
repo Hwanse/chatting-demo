@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import me.hwanse.chatserver.chat.text.ChatMessage;
 import me.hwanse.chatserver.chat.voice.IceMessage;
+import me.hwanse.chatserver.chat.voice.LeaveMessage;
 import me.hwanse.chatserver.chat.voice.VisitorMessage;
 import me.hwanse.chatserver.chat.voice.SdpMessage;
 import me.hwanse.chatserver.chatroom.ChatRoom;
@@ -76,9 +77,9 @@ public class ChatController {
     }
 
     @MessageMapping("/chat/leave-noti")
-    public void leaveChatNotification(@Payload String sessionId) {
-        chatVisitorService.leaveChatVisitor(sessionId);
-        messagingTemplate.convertAndSend("/sub/chat-room/1/leave", sessionId);
+    public void leaveChatNotification(LeaveMessage leaveMessage) {
+        chatVisitorService.leaveChatVisitorInChatRoom(leaveMessage.getRoomId(), leaveMessage.getSessionId());
+        messagingTemplate.convertAndSend("/sub/chat-room/1/leave", leaveMessage.getSessionId());
     }
 
     private String getDestination(Long roomId) {

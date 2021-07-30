@@ -11,18 +11,6 @@ import Stomp from "webstomp-client"
 let websocket
 let stompClient
 
-window.onbeforeunload = async () => {
-    let index = this.connections.indexOf(this.mySessionId)
-    if (index > -1) {
-        this.connections[this.mySessionId].close()
-        this.connections.splice(index, 1)
-    }
-
-    await stompClient.send("/pub/chat/leave")
-    this.checkVisitor.clearInterval()
-    stompClient.disconnect()
-}
-
 export default {
     data() {
         return {
@@ -45,10 +33,8 @@ export default {
         await this.setupMyMedia()
         await this.joinChat()    
     },
-    beforeDestroy() {
-        this.checkVisitor.clearInterval()
-        stompClient.disconnect()
-        websocket.close()
+    mounted() {
+        window.addEventListener("beforeunload", this.closeEvent())
     },
     methods: {
         async setupMyMedia() {
@@ -130,16 +116,15 @@ export default {
         handleDisconnected(event, sessionId) {
             const connectionStatus = this.connections[sessionId].connectionState;
             if (["disconnected", "failed", "closed"].includes(connectionStatus)) {
-                const audioElement = document.getElementById(sessionId)
-                if (audioElement) {
-                    audioElement.remove()
+                let leaveMessage = {
+                    roomId: 1,
+                    sessionId: sessionId
                 }
-                stompClient.send("/pub/chat/leave-noti", JSON.stringify({sessionId: sessionId}))
+                stompClient.send("/pub/chat/leave-noti", JSON.stringify(leaveMessage))
             }
         },
         handleLeavePeer(response) {
-            const sessionId = JSON.parse(response.body).sessionId
-            const audioElement = document.getElementById(sessionId)
+            const audioElement = document.getElementById(response.body)
             if (audioElement) {
                 audioElement.remove()
             }
@@ -219,6 +204,11 @@ export default {
                 this.mySessionId = result[1] ? result[1] : null
             }
         },
+        closeEvent() {
+            this.checkVisitor.clearInterval()
+            stompClient.disconnect()
+            websocket.close()
+        }
     }
 }
 </script>

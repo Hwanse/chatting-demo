@@ -10,7 +10,7 @@ import org.springframework.web.socket.messaging.SessionDisconnectEvent;
 @Slf4j
 @Component
 @RequiredArgsConstructor
-public class ChatSocketDisConnectEvent implements ApplicationListener<SessionDisconnectEvent> {
+public class ChatSocketDisconnectEvent implements ApplicationListener<SessionDisconnectEvent> {
 
     private final ChatVisitorService chatVisitorService;
 
