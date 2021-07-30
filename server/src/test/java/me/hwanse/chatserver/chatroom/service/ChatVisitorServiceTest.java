@@ -59,21 +59,24 @@ class ChatVisitorServiceTest {
     @DisplayName("유저가 특정 채팅방에서 떠난다")
     public void leaveChatVisitor() throws Exception {
         // given
-        String title = "채팅방1";
+        Long roomId = 1L;
         String sessionId = "QxzcEDsa";
+        String title = "채팅방1";
         int userCount = 5;
+
         ChatRoom chatRoom = ChatRoom.builder()
+                .id(roomId)
                 .title(title)
                 .userCount(userCount)
                 .build();
         ChatVisitor chatVisitor = new ChatVisitor(chatRoom, sessionId);
 
-        given(chatVisitorRepository.findBySessionId(any())).willReturn(chatVisitor);
+        given(chatVisitorRepository.findByChatRoomIdAndSessionId(roomId, sessionId))
+                .willReturn(Optional.ofNullable(chatVisitor));
         willDoNothing().given(chatVisitorRepository).delete(chatVisitor);
-        given(chatRoomRepository.findById(any())).willReturn(Optional.of(chatRoom));
 
         // when
-        chatVisitorService.leaveChatVisitor(sessionId);
+        chatVisitorService.leaveChatVisitorInChatRoom(roomId, sessionId);
 
         // then
         assertThat(chatRoom.getUserCount()).isLessThan(userCount);
