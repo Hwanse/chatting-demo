@@ -33,6 +33,7 @@ export default {
     watch: {
         async inputNickname(nickname) {
             if (nickname) {
+                this.inputNickname = nickname
                 await this.setupMyMedia()
                 await this.joinChat()    
             }
@@ -55,18 +56,21 @@ export default {
             stompClient = Stomp.over(websocket)
 
             await stompClient.connect({}, this.onConnected, this.onConnectError)
-
-            this.checkVisitor = setInterval(() => stompClient.send("/pub/chat/visitors"), 2000)
             window.addEventListener("beforeunload", this.closeEvent)
         },
         onConnected() {
             this.bindSessionId()
-            stompClient.subscribe(`/sub/chat-room/${this.roomId}/join`, this.userJoinEvent)
-            stompClient.subscribe(`/user/${this.mySessionId}/sub/chat-room/${this.roomId}/visitors`, this.checkVisitors)
+            stompClient.subscribe(`/sub/chat-room/${this.roomId}`, this.userJoinEvent)
             stompClient.subscribe(`/user/${this.mySessionId}/sub/chat-room/${this.roomId}/voice`, this.getMessageFromSignallingServer)
             stompClient.subscribe(`/sub/chat-room/${this.roomId}/leave`, this.handleLeavePeer)
 
-            stompClient.send("/pub/chat/voice/join")
+            let data = {
+                roomId: this.roomId,
+                message: "JOIN",
+                sender: this.inputNickname,
+                messageType: "JOIN"
+            }
+            stompClient.send("/pub/chat/join", JSON.stringify(data))
         },
         onConnectError(error) {
             console.log("stomp connect error : ", error)
@@ -95,12 +99,13 @@ export default {
         handleIceCandidate(sessionId) {
             if (event.candidate) {
                 let data = {
+                    roomId: this.roomId,
                     type: "candidate",
                     fromId: this.mySessionId,
                     toId: sessionId,
                     candidate: event.candidate
                 }
-                stompClient.send("/pub/chat/candidate", JSON.stringify(data))
+                stompClient.send("/pub/chat/voice/candidate", JSON.stringify(data))
             } else {
                 console.log('End of candidates.')
             }
@@ -123,8 +128,7 @@ export default {
                     roomId: this.roomId,
                     sessionId: sessionId
                 }
-
-                stompClient.send("/pub/chat/leave-noti", JSON.stringify(leaveMessage))
+                stompClient.send("/pub/chat/voice/leave", JSON.stringify(leaveMessage))
 
                 let index = this.connections.indexOf(sessionId)
                 if (index > -1) {
@@ -143,14 +147,14 @@ export default {
             await connection.setLocalDescription(offer)
 
             let sdpMessage = this.getSdpMessage(connection, toId)
-            stompClient.send("/pub/chat/offer", JSON.stringify(sdpMessage))
+            stompClient.send("/pub/chat/voice/offer", JSON.stringify(sdpMessage))
         },
         async createAnswerToSignallingServer(connection, toId) {
             const answer = await connection.createAnswer()    
             await connection.setLocalDescription(answer)
 
             let sdpMessage = this.getSdpMessage(connection, toId)
-            stompClient.send("/pub/chat/offer", JSON.stringify(sdpMessage))
+            stompClient.send("/pub/chat/voice/offer", JSON.stringify(sdpMessage))
         },
         async getMessageFromSignallingServer(response) {
             let message = JSON.parse(response.body)
@@ -175,18 +179,15 @@ export default {
             }
         },
         userJoinEvent(response) {
-            let joinSessionId = JSON.parse(response.body).joinSessionId
+            let sessionId = JSON.parse(response.body).sessionId
 
-            if (this.mySessionId !== joinSessionId) {
-                this.createPeerConnection(joinSessionId, false)
+            if (sessionId && this.mySessionId !== sessionId) {
+                this.createPeerConnection(sessionId, false)
             }
-        },
-        checkVisitors(response) {
-            let visitors = JSON.parse(response.body).visitors
-            console.log(visitors)
         },
         getSdpMessage(connection, toId) {
             return {
+                roomId: this.roomId,
                 fromId: this.mySessionId,
                 toId: toId,
                 type: connection.localDescription.type,

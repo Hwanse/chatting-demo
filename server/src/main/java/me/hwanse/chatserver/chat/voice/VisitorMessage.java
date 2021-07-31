@@ -14,6 +14,7 @@ import java.util.List;
 @AllArgsConstructor
 public class VisitorMessage {
 
+    private Long roomId;
     private List<ChatVisitorDto> visitors;
 
 }

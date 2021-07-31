@@ -23,7 +23,6 @@ export default {
             message: '',
             messages: [],
             sender: '',
-            pollingUserCount: null,
         }
     },
     watch: {
@@ -42,9 +41,6 @@ export default {
         },
         onConnected() {
             stompClient.subscribe(`/sub/chat-room/${this.roomId}`, this.handleMessage)
-
-            let data = this.getMessageObject("join", "JOIN")
-            stompClient.send("/pub/chat/join", JSON.stringify(data))
         },
         onConnectError(error) {
             console.log(error)
@@ -54,7 +50,7 @@ export default {
             
             this.message = message
             let data = this.getMessageObject(this.message, "TALK")
-            stompClient.send("/pub/chat/message", JSON.stringify(data))
+            stompClient.send("/pub/chat/text/message", JSON.stringify(data))
             this.message = ''
         },
         async handleMessage(response) {
@@ -88,12 +84,6 @@ export default {
         moveScrollEnd() {
             let chatContainer = document.getElementById("messageConatiner")
             chatContainer.scrollTop = chatContainer.scrollHeight
-        },
-        monitoringUserCount() {
-            this.pollingUserCount = setInterval(() => {
-                let data = this.getMessageObject(null, "MONITOR")
-                stompClient.send("/pub/chat/monitoring", JSON.stringify(data))
-            }, 2500)
         },
     },
     components: {
