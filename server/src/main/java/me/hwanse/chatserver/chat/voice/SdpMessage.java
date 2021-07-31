@@ -9,6 +9,7 @@ import lombok.*;
 @ToString
 public class SdpMessage {
 
+    private Long roomId;
     private String fromId;
     private String toId;
     private RTCSessionDescription sdp;

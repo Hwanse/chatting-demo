@@ -12,7 +12,6 @@ import lombok.Setter;
 public class RTCSessionDescription {
 
     private String type;
-
     private String sdp;
 
 }

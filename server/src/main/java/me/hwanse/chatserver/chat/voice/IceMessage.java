@@ -9,6 +9,7 @@ import lombok.*;
 @ToString
 public class IceMessage {
 
+    private Long roomId;
     private String fromId;
     private String toId;
     private String type;
