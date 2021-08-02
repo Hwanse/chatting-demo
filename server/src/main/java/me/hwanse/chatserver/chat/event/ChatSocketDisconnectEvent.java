@@ -1,4 +1,4 @@
-package me.hwanse.chatserver.chat;
+package me.hwanse.chatserver.chat.event;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -16,8 +16,7 @@ public class ChatSocketDisconnectEvent implements ApplicationListener<SessionDis
 
     @Override
     public void onApplicationEvent(SessionDisconnectEvent event) {
-        String sessionId = event.getSessionId();
-        chatVisitorService.leaveChatVisitor(sessionId);
+        chatVisitorService.leaveChatVisitor(event.getSessionId());
     }
 
 }

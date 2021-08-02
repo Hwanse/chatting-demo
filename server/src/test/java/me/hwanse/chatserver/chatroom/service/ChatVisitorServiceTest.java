@@ -13,6 +13,8 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -56,8 +58,8 @@ class ChatVisitorServiceTest {
     }
 
     @Test
-    @DisplayName("유저가 특정 채팅방에서 떠난다")
-    public void leaveChatVisitor() throws Exception {
+    @DisplayName("유저가 특정 채팅방에서 나간다")
+    public void leaveChatVisitorInChatRoomTest() throws Exception {
         // given
         Long roomId = 1L;
         String sessionId = "QxzcEDsa";
@@ -80,6 +82,38 @@ class ChatVisitorServiceTest {
 
         // then
         assertThat(chatRoom.getUserCount()).isLessThan(userCount);
+    }
+
+    @Test
+    @DisplayName("유저가 접속중인 채팅방 전체를 나간다")
+    public void leaveChatVisitorTest() throws Exception {
+        // given
+        String sessionId = "QxzcEDsa";
+        int userCount = 5;
+        List<ChatVisitor> visitedList = new ArrayList<>();
+
+        for (long i = 1; i <= 10; i++) {
+            ChatRoom chatRoom = ChatRoom.builder()
+                    .id(i)
+                    .title("채팅방" + i)
+                    .userCount(userCount)
+                    .build();
+            ChatVisitor visitor = new ChatVisitor(chatRoom, sessionId);
+            visitedList.add(visitor);
+        }
+
+        given(chatVisitorRepository.findBySessionId(sessionId)).willReturn(visitedList);
+        willDoNothing().given(chatVisitorRepository).deleteAll(visitedList);
+
+        // when
+        chatVisitorService.leaveChatVisitor(sessionId);
+
+        // then
+        assertThat(visitedList).extracting("chatRoom", ChatRoom.class)
+                // 모든 요소가 아래 테스트 조건을 만족시켜야 할때 사용하는 테스트 메서드
+                .allSatisfy(chatRoom -> {
+                    assertThat(chatRoom.getUserCount()).isLessThan(userCount);
+                });
     }
 
     private ChatVisitor savedChatVisitor(ChatVisitor chatVisitor) {

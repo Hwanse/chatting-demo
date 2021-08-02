@@ -8,16 +8,11 @@
 </template>
 
 <script>
-import SockJS from "sockjs-client"
-import Stomp from "webstomp-client"
 import ChatMessage from "./ChatMessage.vue"
 import ChatMessageSendForm from "./ChatMessageSendForm.vue"
-    
-let websocket
-let stompClient
 
 export default {
-    props: ["roomId", "inputNickname"],
+    props: ["roomId", "inputNickname", "bus", "stompClient"],
     data() {
         return {
             message: '',
@@ -29,28 +24,18 @@ export default {
         async inputNickname(nickname) {
             this.sender = nickname
             await this.$nextTick
-            this.joinChat()
         }
     },
+    mounted() {
+        this.bus.$on("join", this.handleMessage)
+    },
     methods: {
-        joinChat() {
-            websocket = new SockJS(`${location.protocol}//${location.host}/ws/chat`)
-            stompClient = Stomp.over(websocket)
-
-            stompClient.connect({}, this.onConnected, this.onConnectError)
-        },
-        onConnected() {
-            stompClient.subscribe(`/sub/chat-room/${this.roomId}`, this.handleMessage)
-        },
-        onConnectError(error) {
-            console.log(error)
-        },
         sendMessage(message) {
             if (!message.trim()) return
             
             this.message = message
             let data = this.getMessageObject(this.message, "TALK")
-            stompClient.send("/pub/chat/text/message", JSON.stringify(data))
+            this.stompClient.send("/pub/chat/text/message", JSON.stringify(data))
             this.message = ''
         },
         async handleMessage(response) {
