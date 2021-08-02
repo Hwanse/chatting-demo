@@ -5,14 +5,8 @@
 </template>
 
 <script>
-import SockJS from "sockjs-client"
-import Stomp from "webstomp-client"
-
-let websocket
-let stompClient
-
 export default {
-    props: ["roomId", "inputNickname"],
+    props: ["roomId", "inputNickname", "bus", "stompClient"],
     data() {
         return {
             mediaConfig: {
@@ -27,7 +21,6 @@ export default {
             myVoiceStream: null,
             mySessionId: null,
             connections: [],
-            checkVisitor: null,
         }
     },
     watch: {
@@ -35,9 +28,14 @@ export default {
             if (nickname) {
                 this.inputNickname = nickname
                 await this.setupMyMedia()
-                await this.joinChat()    
+                this.mySessionId = this.bus.$data.mySessionId
             }
         }
+    },
+    mounted() {
+        this.bus.$on("join", this.userJoinEvent)
+        this.bus.$on("signalling", this.getMessageFromSignallingServer)
+        this.bus.$on("leave", this.handleLeavePeer)
     },
     methods: {
         async setupMyMedia() {
@@ -50,43 +48,17 @@ export default {
                 console.log("get media error occured : ", error)
             }
         },
-        async joinChat() {
-            websocket = new SockJS(`${location.protocol}//${location.host}/ws/chat`)
-            // let options = {debug: false, protocols: Stomp.VERSIONS.supportedProtocols()};
-            stompClient = Stomp.over(websocket)
-
-            await stompClient.connect({}, this.onConnected, this.onConnectError)
-            window.addEventListener("beforeunload", this.closeEvent)
-        },
-        onConnected() {
-            this.bindSessionId()
-            stompClient.subscribe(`/sub/chat-room/${this.roomId}`, this.userJoinEvent)
-            stompClient.subscribe(`/user/${this.mySessionId}/sub/chat-room/${this.roomId}/voice`, this.getMessageFromSignallingServer)
-            stompClient.subscribe(`/sub/chat-room/${this.roomId}/leave`, this.handleLeavePeer)
-
-            let data = {
-                roomId: this.roomId,
-                message: "JOIN",
-                sender: this.inputNickname,
-                messageType: "JOIN"
-            }
-            stompClient.send("/pub/chat/join", JSON.stringify(data))
-        },
-        onConnectError(error) {
-            console.log("stomp connect error : ", error)
-        },
         createPeerConnection(sessionId, isReceiveOffer) {
             if (!this.connections[sessionId]) {
                 let connection = new RTCPeerConnection(this.iceConfig)
                 this.connections[sessionId] = connection
-                
+
                 for (const track of this.myVoiceStream.getTracks()) {
                     connection.addTrack(track)
                 }
 
-                connection.onicecandidate = () => this.handleIceCandidate(sessionId)
-                connection.ontrack = () => this.handleRemoteTrackAdded(sessionId)
-                connection.onremovetrack = () => this.handleRemovedTrack(sessionId)
+                connection.onicecandidate = event => this.handleIceCandidate(event, sessionId)
+                connection.ontrack = event => this.handleRemoteTrackAdded(event, sessionId)
                 connection.onconnectionstatechange = () => this.handleDisconnected(sessionId)
 
                 if (!isReceiveOffer) {
@@ -96,7 +68,7 @@ export default {
                 }
             }
         },
-        handleIceCandidate(sessionId) {
+        handleIceCandidate(event, sessionId) {
             if (event.candidate) {
                 let data = {
                     roomId: this.roomId,
@@ -105,12 +77,12 @@ export default {
                     toId: sessionId,
                     candidate: event.candidate
                 }
-                stompClient.send("/pub/chat/voice/candidate", JSON.stringify(data))
+                this.stompClient.send("/pub/chat/voice/candidate", JSON.stringify(data))
             } else {
                 console.log('End of candidates.')
             }
         },
-        handleRemoteTrackAdded(sessionId) {
+        handleRemoteTrackAdded(event, sessionId) {
             const container = document.getElementsByClassName("container")[0]
             const audio = document.createElement("audio")
 
@@ -128,7 +100,7 @@ export default {
                     roomId: this.roomId,
                     sessionId: sessionId
                 }
-                stompClient.send("/pub/chat/voice/leave", JSON.stringify(leaveMessage))
+                this.stompClient.send("/pub/chat/voice/leave", JSON.stringify(leaveMessage))
 
                 let index = this.connections.indexOf(sessionId)
                 if (index > -1) {
@@ -147,14 +119,14 @@ export default {
             await connection.setLocalDescription(offer)
 
             let sdpMessage = this.getSdpMessage(connection, toId)
-            stompClient.send("/pub/chat/voice/offer", JSON.stringify(sdpMessage))
+            this.stompClient.send("/pub/chat/voice/offer", JSON.stringify(sdpMessage))
         },
         async createAnswerToSignallingServer(connection, toId) {
             const answer = await connection.createAnswer()    
             await connection.setLocalDescription(answer)
 
             let sdpMessage = this.getSdpMessage(connection, toId)
-            stompClient.send("/pub/chat/voice/offer", JSON.stringify(sdpMessage))
+            this.stompClient.send("/pub/chat/voice/offer", JSON.stringify(sdpMessage))
         },
         async getMessageFromSignallingServer(response) {
             let message = JSON.parse(response.body)
@@ -194,18 +166,6 @@ export default {
                 sdp: connection.localDescription
             }
         },
-        bindSessionId() {
-            let regex = /\/ws\/chat\/[0-9]+\/(\w+)\.*/g
-            let result = regex.exec(websocket._transport.url)
-            if (result) {
-                this.mySessionId = result[1] ? result[1] : null
-            }
-        },
-        closeEvent(event) {
-            event.preventDefault()
-            stompClient.disconnect()
-            websocket.close()
-        }
     }
 }
 </script>
