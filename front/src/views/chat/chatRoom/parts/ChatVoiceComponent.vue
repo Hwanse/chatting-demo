@@ -28,6 +28,7 @@ export default {
             if (nickname) {
                 this.inputNickname = nickname
                 await this.setupMyMedia()
+                await this.$nextTick
                 this.mySessionId = this.bus.$data.mySessionId
             }
         }
@@ -153,7 +154,7 @@ export default {
         userJoinEvent(response) {
             let sessionId = JSON.parse(response.body).sessionId
 
-            if (sessionId && this.mySessionId !== sessionId) {
+            if (sessionId && this.mySessionId && this.mySessionId !== sessionId) {
                 this.createPeerConnection(sessionId, false)
             }
         },

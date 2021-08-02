@@ -32,19 +32,19 @@ public class ChatController {
     private final ChatVisitorService chatVisitorService;
 
     @MessageMapping("/join")
-    public void joinInChat(SimpMessageHeaderAccessor headerAccessor, ChatMessage chatMessage) {
+    public void joinInChat(SimpMessageHeaderAccessor headerAccessor, @Valid ChatMessage chatMessage) {
         chatMessage.setSessionId(headerAccessor.getSessionId());
         messagingTemplate.convertAndSend(getDestination(chatMessage.getRoomId()), chatMessage);
     }
 
     // =========== 텍스트 채팅 관련 ==============
     @MessageMapping("/text/message")
-    public void sendMessage(ChatMessage chatMessage) {
+    public void sendMessage(@Valid ChatMessage chatMessage) {
         messagingTemplate.convertAndSend(getDestination(chatMessage.getRoomId()), chatMessage);
     }
 
     @MessageMapping("/text/monitoring")
-    public void monitoringRoom(ChatMessage chatMessage) {
+    public void monitoringRoom(@Valid ChatMessage chatMessage) {
         ChatRoom chatRoom = chatRoomService.findChatRoomById(chatMessage.getRoomId());
         chatMessage.setUserCount(chatRoom.getUserCount());
         messagingTemplate.convertAndSend(getDestination(chatMessage.getRoomId()), chatMessage);
@@ -60,17 +60,17 @@ public class ChatController {
     }
 
     @MessageMapping("/voice/offer")
-    public void sendVoiceToPeers(SdpMessage message) {
+    public void sendVoiceToPeers(@Valid SdpMessage message) {
         messagingTemplate.convertAndSendToUser(message.getToId(), getDestination(message.getRoomId()) + "/voice", message);
     }
 
     @MessageMapping("/voice/candidate")
-    public void sendVoiceToPeers(IceMessage message) {
+    public void sendVoiceToPeers(@Valid IceMessage message) {
         messagingTemplate.convertAndSendToUser(message.getToId(), getDestination(message.getRoomId()) +"/voice", message);
     }
 
     @MessageMapping("/voice/leave")
-    public void leaveChatNotification(LeaveMessage leaveMessage) {
+    public void leaveChatNotification(@Valid LeaveMessage leaveMessage) {
         chatVisitorService.leaveChatVisitorInChatRoom(leaveMessage.getRoomId(), leaveMessage.getSessionId());
         messagingTemplate.convertAndSend(getDestination(leaveMessage.getRoomId()) + "/leave", leaveMessage.getSessionId());
     }
