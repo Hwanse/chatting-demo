@@ -5,13 +5,21 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import javax.validation.constraints.Min;
+import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
+
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 public class LeaveMessage {
 
+    @NotNull
+    @Min(1)
     private Long roomId;
+
+    @NotEmpty
     private String sessionId;
 
 }

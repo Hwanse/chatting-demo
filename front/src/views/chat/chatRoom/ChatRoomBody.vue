@@ -36,6 +36,7 @@ export default {
             this.websocket = new SockJS(`${location.protocol}//${location.host}/ws/chat`)
             // let options = {debug: false, protocols: Stomp.VERSIONS.supportedProtocols()};
             this.stompClient = Stomp.over(this.websocket)
+            
             await this.stompClient.connect({}, this.onConnected, this.onConnectError)
         },
         onConnected() {
