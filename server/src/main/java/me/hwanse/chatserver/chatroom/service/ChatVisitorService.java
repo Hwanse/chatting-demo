@@ -39,12 +39,11 @@ public class ChatVisitorService {
     @Transactional
     public void leaveChatVisitor(String sessionId) {
         List<ChatVisitor> chatVisitors = chatVisitorRepository.findBySessionId(sessionId);
-        if (!chatVisitors.isEmpty()) {
-            for (ChatVisitor visitor : chatVisitors) {
-                visitor.getChatRoom().decreaseUserCount();
-            }
-            chatVisitorRepository.deleteAll(chatVisitors);
+
+        for (ChatVisitor visitor : chatVisitors) {
+            visitor.getChatRoom().decreaseUserCount();
         }
+        chatVisitorRepository.deleteAll(chatVisitors);
     }
 
     @Transactional

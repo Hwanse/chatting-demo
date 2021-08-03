@@ -11,11 +11,17 @@ import me.hwanse.chatserver.chatroom.ChatRoom;
 import me.hwanse.chatserver.chatroom.dto.ChatVisitorDto;
 import me.hwanse.chatserver.chatroom.service.ChatRoomService;
 import me.hwanse.chatserver.chatroom.service.ChatVisitorService;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.messaging.handler.annotation.MessageExceptionHandler;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.HttpMediaTypeException;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 
 import javax.validation.Valid;
 import java.util.List;
@@ -77,6 +83,13 @@ public class ChatController {
 
     private String getDestination(Long roomId) {
         return String.format("/sub/chat-room/%d", roomId);
+    }
+
+    @MessageExceptionHandler({MethodArgumentNotValidException.class, IllegalArgumentException.class,
+            IllegalStateException.class, HttpMediaTypeException.class})
+    public ResponseEntity<?> handleSocketBadRequestException(Exception e) {
+        log.debug("socket bad request exception occurred : {}", e.getMessage(), e);
+        return ResponseEntity.badRequest().header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE).body(e);
     }
 
 }

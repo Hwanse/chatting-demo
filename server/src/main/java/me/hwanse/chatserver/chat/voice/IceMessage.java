@@ -23,7 +23,6 @@ public class IceMessage {
     @NotEmpty
     private String toId;
 
-    @NotEmpty
     private String type;
 
     private CandidateDto candidate;

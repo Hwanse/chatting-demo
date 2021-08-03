@@ -6,7 +6,7 @@
 
 <script>
 export default {
-    props: ["roomId", "inputNickname", "bus", "stompClient"],
+    props: ["bus"],
     data() {
         return {
             mediaConfig: {
@@ -18,27 +18,24 @@ export default {
                     {"urls": "stun:stun1.l.google.com:19302"}
                 ]       
             },
-            myVoiceStream: null,
-            mySessionId: null,
             connections: [],
-        }
-    },
-    watch: {
-        async inputNickname(nickname) {
-            if (nickname) {
-                this.inputNickname = nickname
-                await this.setupMyMedia()
-                await this.$nextTick
-                this.mySessionId = this.bus.$data.mySessionId
-            }
+            myVoiceStream: null,
+            chatSetupData: {},
         }
     },
     mounted() {
+        this.bus.$on("connect", this.startVoiceChat)
         this.bus.$on("join", this.userJoinEvent)
         this.bus.$on("signalling", this.getMessageFromSignallingServer)
         this.bus.$on("leave", this.handleLeavePeer)
     },
     methods: {
+        async startVoiceChat(setupData) {
+            this.chatSetupData = setupData
+            await this.setupMyMedia()
+            await this.$nextTick()
+            this.bus.$emit("connected")
+        },
         async setupMyMedia() {
             try {
                 this.myVoiceStream = await navigator.mediaDevices.getUserMedia(this.mediaConfig)
@@ -72,13 +69,13 @@ export default {
         handleIceCandidate(event, sessionId) {
             if (event.candidate) {
                 let data = {
-                    roomId: this.roomId,
+                    roomId: this.chatSetupData.roomId,
                     type: "candidate",
-                    fromId: this.mySessionId,
+                    fromId: this.chatSetupData.mySessionId,
                     toId: sessionId,
                     candidate: event.candidate
                 }
-                this.stompClient.send("/pub/chat/voice/candidate", JSON.stringify(data))
+                this.chatSetupData.stompClient.send("/pub/chat/voice/candidate", JSON.stringify(data))
             } else {
                 console.log('End of candidates.')
             }
@@ -98,10 +95,10 @@ export default {
             const connectionStatus = this.connections[sessionId].connectionState;
             if (["disconnected", "failed", "closed"].includes(connectionStatus)) {
                 let leaveMessage = {
-                    roomId: this.roomId,
+                    roomId: this.chatSetupData.roomId,
                     sessionId: sessionId
                 }
-                this.stompClient.send("/pub/chat/voice/leave", JSON.stringify(leaveMessage))
+                this.chatSetupData.stompClient.send("/pub/chat/voice/leave", JSON.stringify(leaveMessage))
 
                 let index = this.connections.indexOf(sessionId)
                 if (index > -1) {
@@ -120,21 +117,21 @@ export default {
             await connection.setLocalDescription(offer)
 
             let sdpMessage = this.getSdpMessage(connection, toId)
-            this.stompClient.send("/pub/chat/voice/offer", JSON.stringify(sdpMessage))
+            this.chatSetupData.stompClient.send("/pub/chat/voice/offer", JSON.stringify(sdpMessage))
         },
         async createAnswerToSignallingServer(connection, toId) {
             const answer = await connection.createAnswer()    
             await connection.setLocalDescription(answer)
 
             let sdpMessage = this.getSdpMessage(connection, toId)
-            this.stompClient.send("/pub/chat/voice/offer", JSON.stringify(sdpMessage))
+            this.chatSetupData.stompClient.send("/pub/chat/voice/offer", JSON.stringify(sdpMessage))
         },
         async getMessageFromSignallingServer(response) {
             let message = JSON.parse(response.body)
             const fromId = message.fromId
 
-            if (!fromId || fromId === this.mySessionId) return
-            
+            if (!fromId || fromId === this.chatSetupData.mySessionId) return 
+
             if (message.type === "offer") {
                 if (!this.connections[fromId]) {
                     this.createPeerConnection(fromId, true)
@@ -154,14 +151,14 @@ export default {
         userJoinEvent(response) {
             let sessionId = JSON.parse(response.body).sessionId
 
-            if (sessionId && this.mySessionId && this.mySessionId !== sessionId) {
+            if (sessionId && this.chatSetupData.mySessionId && this.chatSetupData.mySessionId !== sessionId) {
                 this.createPeerConnection(sessionId, false)
             }
         },
         getSdpMessage(connection, toId) {
             return {
-                roomId: this.roomId,
-                fromId: this.mySessionId,
+                roomId: this.chatSetupData.roomId,
+                fromId: this.chatSetupData.mySessionId,
                 toId: toId,
                 type: connection.localDescription.type,
                 sdp: connection.localDescription

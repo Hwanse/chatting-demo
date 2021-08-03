@@ -13,11 +13,11 @@
          -->
         <v-tab-item :key="1" eager>
             <div class="voice-container">
-                <ChatVoiceComponent :roomId="roomId" :inputNickname="inputNickname" :bus="bus" :stompClient="stompClient"/>
+                <ChatVoiceComponent :bus="bus" />
             </div>
         </v-tab-item>
         <v-tab-item :key="2" eager>
-            <ChatTextMessageComponent :roomId="roomId" :inputNickname="inputNickname" :bus="bus" :stompClient="stompClient"/>
+            <ChatTextMessageComponent :bus="bus" />
         </v-tab-item>
     </v-tabs>
 </template>
@@ -27,12 +27,7 @@ import ChatTextMessageComponent from "./ChatTextMessageComponent.vue"
 import ChatVoiceComponent from "./ChatVoiceComponent.vue"
 
 export default {
-    props: ["roomId", "inputNickname", "bus", "stompClient"],
-    watch: {
-        inputNickname(nickname) {
-            this.inputNickname = nickname
-        }
-    },
+    props: ["bus"],
     components: {
         ChatVoiceComponent,
         ChatTextMessageComponent

@@ -1,7 +1,7 @@
 <template>
     <div>
         <div id="messageConatiner" class="chat-container">
-            <ChatMessage v-for="(item, index) in messages" :key="index" :item="item" :sender="sender"/>    
+            <ChatMessage v-for="(item, index) in messages" :key="index" :item="item" :sender="chatSetupData.sender" :mySessionId="chatSetupData.mySessionId"/>    
         </div>
         <ChatMessageSendForm v-on:@send="sendMessage"/>
     </div>
@@ -12,30 +12,30 @@ import ChatMessage from "./ChatMessage.vue"
 import ChatMessageSendForm from "./ChatMessageSendForm.vue"
 
 export default {
-    props: ["roomId", "inputNickname", "bus", "stompClient"],
+    props: ["bus"],
     data() {
         return {
             message: '',
             messages: [],
-            sender: '',
-        }
-    },
-    watch: {
-        async inputNickname(nickname) {
-            this.sender = nickname
-            await this.$nextTick
+            chatSetupData: {},
         }
     },
     mounted() {
+        this.bus.$on("connect", this.startTextChat)
         this.bus.$on("join", this.handleMessage)
     },
     methods: {
+        async startTextChat(setupData) {
+            this.chatSetupData = setupData
+            await this.$nextTick()
+            // this.bus.$emit("connected")
+        },
         sendMessage(message) {
             if (!message.trim()) return
             
             this.message = message
             let data = this.getMessageObject(this.message, "TALK")
-            this.stompClient.send("/pub/chat/text/message", JSON.stringify(data))
+            this.chatSetupData.stompClient.send("/pub/chat/text/message", JSON.stringify(data))
             this.message = ''
         },
         async handleMessage(response) {
@@ -55,10 +55,11 @@ export default {
         },
         getMessageObject(content, type) {
             return {
-                roomId: this.roomId,
+                roomId: this.chatSetupData.roomId,
                 message: content,
-                sender: this.sender,
-                messageType: type
+                sender: this.chatSetupData.sender,
+                messageType: type,
+                sessionId: this.chatSetupData.mySessionId
             }
         },
         controlScroll() {
