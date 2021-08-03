@@ -6,6 +6,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import javax.validation.constraints.Min;
+import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 
 @Getter
@@ -26,6 +27,7 @@ public class ChatMessage {
 
     private MessageType messageType;
 
+    @NotEmpty
     private String sessionId;
 
 }

@@ -25,7 +25,6 @@ public class SdpMessage {
 
     private RTCSessionDescription sdp;
 
-    @NotEmpty
     private String type;
 
 }
