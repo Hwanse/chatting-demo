@@ -1,1 +1,1 @@
-# chatting-app-demo
+# chatting-demo
