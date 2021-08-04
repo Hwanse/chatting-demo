@@ -23,7 +23,7 @@ public class ChatMessage {
 
     private String sender;
 
-    private int userCount;
+//    private int userCount;
 
     private MessageType messageType;
 

@@ -51,9 +51,9 @@ export default {
             this.stompClient.subscribe(`/sub/chat-room/${this.info.id}`, this.receiveJoinMessage)
             this.stompClient.subscribe(`/user/${this.mySessionId}/sub/chat-room/${this.info.id}/voice`, this.receiveSignallingMessage)
             this.stompClient.subscribe(`/sub/chat-room/${this.info.id}/leave`, this.receiveLeaveMessage)
-            window.addEventListener("beforeunload", this.closeEvent)
             
             this.bus.$emit("connect", this.chatSetupData())           
+            window.addEventListener("beforeunload", this.closeEvent)
         },
         onConnectError(error) {
             console.log("stomp connect error : ", error)

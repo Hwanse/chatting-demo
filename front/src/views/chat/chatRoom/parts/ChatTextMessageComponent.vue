@@ -28,7 +28,6 @@ export default {
         async startTextChat(setupData) {
             this.chatSetupData = setupData
             await this.$nextTick()
-            // this.bus.$emit("connected")
         },
         sendMessage(message) {
             if (!message.trim()) return

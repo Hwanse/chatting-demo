@@ -37,9 +37,10 @@ public class ChatController {
     private final ChatRoomService chatRoomService;
     private final ChatVisitorService chatVisitorService;
 
+    // =========== 채팅방 공통 ==============
     @MessageMapping("/join")
     public void joinInChat(SimpMessageHeaderAccessor headerAccessor, @Valid ChatMessage chatMessage) {
-        chatMessage.setSessionId(headerAccessor.getSessionId());
+//        chatMessage.setSessionId(headerAccessor.getSessionId());
         messagingTemplate.convertAndSend(getDestination(chatMessage.getRoomId()), chatMessage);
     }
 
@@ -49,12 +50,12 @@ public class ChatController {
         messagingTemplate.convertAndSend(getDestination(chatMessage.getRoomId()), chatMessage);
     }
 
-    @MessageMapping("/text/monitoring")
-    public void monitoringRoom(@Valid ChatMessage chatMessage) {
-        ChatRoom chatRoom = chatRoomService.findChatRoomById(chatMessage.getRoomId());
-        chatMessage.setUserCount(chatRoom.getUserCount());
-        messagingTemplate.convertAndSend(getDestination(chatMessage.getRoomId()), chatMessage);
-    }
+//    @MessageMapping("/text/monitoring")
+//    public void monitoringRoom(@Valid ChatMessage chatMessage) {
+//        ChatRoom chatRoom = chatRoomService.findChatRoomById(chatMessage.getRoomId());
+//        chatMessage.setUserCount(chatRoom.getUserCount());
+//        messagingTemplate.convertAndSend(getDestination(chatMessage.getRoomId()), chatMessage);
+//    }
 
     // =========== 음성 채팅 관련 ==============
     @MessageMapping("/voice/visitors")
@@ -89,7 +90,7 @@ public class ChatController {
             IllegalStateException.class, HttpMediaTypeException.class})
     public ResponseEntity<?> handleSocketBadRequestException(Exception e) {
         log.debug("socket bad request exception occurred : {}", e.getMessage(), e);
-        return ResponseEntity.badRequest().header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE).body(e);
+        return ResponseEntity.badRequest().header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE).body(e.getMessage());
     }
 
 }
