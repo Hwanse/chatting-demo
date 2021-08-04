@@ -25,6 +25,8 @@ public class ChatRoom {
 
     private String title;
 
+    private int limitUserCount; // default 5
+
     private int userCount;
 
     private LocalDateTime createdAt;
@@ -33,10 +35,13 @@ public class ChatRoom {
 
     private boolean use;
 
+
     public ChatRoom(String title) {
-        this.title = title;
-        this.createdAt = LocalDateTime.now();
-        this.use = true;
+        this(title, 5);
+    }
+
+    public ChatRoom(String title, int limitUserCount) {
+        this(null, title, limitUserCount, 0, LocalDateTime.now(), null, true);
     }
 
     public void increaseUserCount() {
@@ -46,6 +51,11 @@ public class ChatRoom {
     public void decreaseUserCount() {
         if (userCount <= 0) return;
         this.userCount--;
+    }
+
+    public void disable() {
+        this.deletedAt = LocalDateTime.now();
+        this.use = false;
     }
 
 }

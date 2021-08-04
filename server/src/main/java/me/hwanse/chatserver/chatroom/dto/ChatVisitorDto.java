@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import me.hwanse.chatserver.chatroom.ChatVisitor;
+import me.hwanse.chatserver.chatroom.ChatVisitorRole;
 
 @Getter
 @Setter
@@ -18,10 +19,13 @@ public class ChatVisitorDto {
 
     private String sessionId;
 
+    private ChatVisitorRole role;
+
     public ChatVisitorDto(ChatVisitor chatVisitor) {
         this.id = chatVisitor.getId();
         this.roomId = chatVisitor.getChatRoom().getId();
         this.sessionId = chatVisitor.getSessionId();
+        this.role = chatVisitor.getRole();
     }
 
 }

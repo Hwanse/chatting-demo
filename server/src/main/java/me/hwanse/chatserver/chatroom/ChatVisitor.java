@@ -23,8 +23,14 @@ public class ChatVisitor {
     @Column(unique = true)
     private String sessionId;
 
+    @Enumerated(EnumType.STRING)
+    private ChatVisitorRole role;  // default user role
+
     public ChatVisitor(ChatRoom chatRoom, String sessionId) {
-        this.chatRoom = chatRoom;
-        this.sessionId = sessionId;
+        this(chatRoom, sessionId, ChatVisitorRole.USER);
+    }
+
+    public ChatVisitor(ChatRoom chatRoom, String sessionId, ChatVisitorRole role) {
+        this(null, chatRoom, sessionId, role);
     }
 }

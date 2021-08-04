@@ -1,5 +1,6 @@
 package me.hwanse.chatserver.chatroom.dto;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -11,11 +12,14 @@ import java.time.LocalDateTime;
 @Getter
 @Setter
 @NoArgsConstructor
+@AllArgsConstructor
 public class ChatRoomDto {
 
     private Long id;
 
     private String title;
+
+    private int limitUserCount;
 
     private int userCount;
 
@@ -28,6 +32,7 @@ public class ChatRoomDto {
     public ChatRoomDto(ChatRoom chatRoom) {
         this.id = chatRoom.getId();
         this.title = chatRoom.getTitle();
+        this.limitUserCount = chatRoom.getLimitUserCount();
         this.userCount = chatRoom.getUserCount();
         this.createdAt = chatRoom.getCreatedAt();
         this.deletedAt = chatRoom.getDeletedAt();

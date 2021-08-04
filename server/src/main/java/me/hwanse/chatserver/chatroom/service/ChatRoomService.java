@@ -37,4 +37,9 @@ public class ChatRoomService {
         chatRoomRepository.findById(roomId).ifPresent(ChatRoom::decreaseUserCount);
     }
 
+    @Transactional
+    public void disableChatRoom(Long roomId) {
+        chatRoomRepository.findById(roomId).ifPresent(ChatRoom::disable);
+    }
+
 }
