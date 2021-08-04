@@ -95,6 +95,7 @@ public class ChatStompTest {
         stompSession.send(CHAT_TEXT_TALK_ENDPOINT, chatMessage);
         ChatMessage returnMessage = completableFuture.get(5, TimeUnit.SECONDS);
 
+        // then
         assertThat(returnMessage).isNotNull();
         assertThat(returnMessage.getSessionId()).isEqualTo(stompSession.getSessionId());
         assertThat(returnMessage.getSender()).isEqualTo(sender);

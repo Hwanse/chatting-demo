@@ -16,6 +16,7 @@ public class ChatSocketDisconnectEvent implements ApplicationListener<SessionDis
 
     @Override
     public void onApplicationEvent(SessionDisconnectEvent event) {
+        log.info("[{}] session disconnected - {} ", event.getCloseStatus(), event.getSessionId());
         chatVisitorService.leaveChatVisitor(event.getSessionId());
     }
 
