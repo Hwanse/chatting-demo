@@ -28,7 +28,7 @@ export default {
     mounted() {
         this.getChatList()
             .then(response => {
-                this.chatList = response.data
+                this.chatList = response.data.data
             })
             .catch(reason => console.log(reason))
     },
