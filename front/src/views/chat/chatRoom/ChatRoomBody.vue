@@ -24,12 +24,14 @@ export default {
             stompClient: null,
             nickname: '',
             noInputNickname: true,
-            mySessionId: null
+            mySessionId: null,
+            monitoringInterval: null,
         }
     },
     created() {
         this.bus.$on("connected", () => {
             this.sendJoinMessage() 
+            this.sendMonitoringMessage()
         })
     },
     methods: {
@@ -50,6 +52,7 @@ export default {
 
             this.stompClient.subscribe(`/sub/chat-room/${this.info.id}`, this.receiveJoinMessage)
             this.stompClient.subscribe(`/user/${this.mySessionId}/sub/chat-room/${this.info.id}/voice`, this.receiveSignallingMessage)
+            this.stompClient.subscribe(`/user/${this.mySessionId}/sub/chat-room/${this.info.id}/monitoring`, this.receiveMonitoringMessage)
             this.stompClient.subscribe(`/sub/chat-room/${this.info.id}/leave`, this.receiveLeaveMessage)
             
             this.bus.$emit("connect", this.chatSetupData())           
@@ -84,8 +87,20 @@ export default {
             } 
             this.stompClient.send("/pub/chat/join", JSON.stringify(data))
         },
+        sendMonitoringMessage() {
+            this.monitoringInterval = setInterval(() => {
+                let data = {
+                    roomId: this.info.id
+                }
+                this.stompClient.send("/pub/chat/monitoring", JSON.stringify(data))
+            }, 2000)
+        },
         receiveJoinMessage(response) {
             this.bus.$emit("join", response)
+        },
+        receiveMonitoringMessage(response) {
+            let userCount = JSON.parse(response.body).userCount
+            this.$emit("monitoring", userCount)
         },
         receiveSignallingMessage(response) {
             this.bus.$emit("signalling", response)
@@ -95,6 +110,7 @@ export default {
         },
         closeEvent(event) {
             event.preventDefault()
+            clearInterval(this.monitoringInterval)
             this.stompClient.disconnect()
             this.websocket.close()
         } 
