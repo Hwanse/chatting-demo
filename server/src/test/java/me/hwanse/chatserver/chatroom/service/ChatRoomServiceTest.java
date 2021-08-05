@@ -66,11 +66,12 @@ class ChatRoomServiceTest {
     @DisplayName("특정 채팅방을 id로 조회한다")
     public void findChatRoomByIdTest() throws Exception {
         // given
+        long roomId = 1L;
         Optional<ChatRoom> chatRoom = Optional.ofNullable(new ChatRoom(TITLE));
-        given(chatRoomRepository.findById(any())).willReturn(chatRoom);
+        given(chatRoomRepository.findById(roomId)).willReturn(chatRoom);
 
         // when
-        ChatRoom findRoom = chatRoomService.findChatRoomById(chatRoom.get().getId());
+        ChatRoom findRoom = chatRoomService.findChatRoomById(roomId);
 
         // then
         assertThat(findRoom).isNotNull();

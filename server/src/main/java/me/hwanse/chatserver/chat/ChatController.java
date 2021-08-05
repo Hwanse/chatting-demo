@@ -40,7 +40,6 @@ public class ChatController {
     // =========== 채팅방 공통 ==============
     @MessageMapping("/join")
     public void joinInChat(SimpMessageHeaderAccessor headerAccessor, @Valid ChatMessage chatMessage) {
-//        chatMessage.setSessionId(headerAccessor.getSessionId());
         messagingTemplate.convertAndSend(getDestination(chatMessage.getRoomId()), chatMessage);
     }
 
@@ -50,21 +49,14 @@ public class ChatController {
         messagingTemplate.convertAndSend(getDestination(chatMessage.getRoomId()), chatMessage);
     }
 
-//    @MessageMapping("/text/monitoring")
-//    public void monitoringRoom(@Valid ChatMessage chatMessage) {
-//        ChatRoom chatRoom = chatRoomService.findChatRoomById(chatMessage.getRoomId());
-//        chatMessage.setUserCount(chatRoom.getUserCount());
-//        messagingTemplate.convertAndSend(getDestination(chatMessage.getRoomId()), chatMessage);
-//    }
-
     // =========== 음성 채팅 관련 ==============
-    @MessageMapping("/voice/visitors")
-    public void findVisitors(SimpMessageHeaderAccessor headerAccessor, @Valid @Payload(required = true) Long roomId) {
-        List<ChatVisitorDto> visitors = chatVisitorService.findVisitorsInTheChatRoom(roomId).stream()
-                .map(ChatVisitorDto::new).collect(Collectors.toList());
-        messagingTemplate.convertAndSendToUser(headerAccessor.getSessionId(),
-                getDestination(roomId) + "/visitors", new VisitorMessage(roomId, visitors));
-    }
+//    @MessageMapping("/voice/visitors")
+//    public void findVisitors(SimpMessageHeaderAccessor headerAccessor, @Valid @Payload(required = true) Long roomId) {
+//        List<ChatVisitorDto> visitors = chatVisitorService.findVisitorsInTheChatRoom(roomId).stream()
+//                .map(ChatVisitorDto::new).collect(Collectors.toList());
+//        messagingTemplate.convertAndSendToUser(headerAccessor.getSessionId(),
+//                getDestination(roomId) + "/visitors", new VisitorMessage(roomId, visitors));
+//    }
 
     @MessageMapping("/voice/offer")
     public void sendVoiceToPeers(@Valid SdpMessage message) {

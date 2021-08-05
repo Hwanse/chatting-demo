@@ -3,7 +3,7 @@
         <ChatInputNicknameDialog :isInputNickname="noInputNickname" v-on:@click="inputNickname"/>
 
         <v-card>
-            <ChatTabs :roomId="info.id" :inputNickname="nickname" :bus="bus" :stompClient="stompClient"/>
+            <ChatTabs :bus="bus"/>
         </v-card>
     </div>
 </template>

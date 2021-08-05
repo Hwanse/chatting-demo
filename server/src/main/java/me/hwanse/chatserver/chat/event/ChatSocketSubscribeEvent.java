@@ -3,6 +3,7 @@ package me.hwanse.chatserver.chat.event;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import me.hwanse.chatserver.chatroom.service.ChatVisitorService;
+import me.hwanse.chatserver.exception.NotFoundException;
 import org.springframework.context.ApplicationListener;
 import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
 import org.springframework.stereotype.Component;

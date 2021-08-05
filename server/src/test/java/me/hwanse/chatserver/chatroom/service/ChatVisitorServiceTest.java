@@ -39,12 +39,17 @@ class ChatVisitorServiceTest {
     @DisplayName("유저가 특정 채팅방에 접속한다")
     public void addChatVisitorTest() throws Exception {
         // given
+        long roomId = 1L;
         String title = "채팅방1";
         String sessionId = "QxzcEDsa";
-        ChatRoom chatRoom = new ChatRoom(title);
+        ChatRoom chatRoom = ChatRoom.builder()
+                .id(roomId)
+                .title(title)
+                .userCount(0)
+                .build();
         ChatVisitor chatVisitor = new ChatVisitor(chatRoom, sessionId);
 
-        given(chatRoomRepository.findById(any())).willReturn(Optional.of(chatRoom));
+        given(chatRoomRepository.findById(roomId)).willReturn(Optional.of(chatRoom));
         given(chatVisitorRepository.save(chatVisitor)).willReturn(savedChatVisitor(chatVisitor));
 
         // when
@@ -55,6 +60,7 @@ class ChatVisitorServiceTest {
         assertThat(saved.getId()).isNotNull();
         assertThat(saved.getChatRoom()).isEqualTo(chatRoom);
         assertThat(saved.getSessionId()).isEqualTo(chatVisitor.getSessionId());
+        assertThat(chatRoom.getUserCount()).isGreaterThan(0);
     }
 
     @Test

@@ -2,7 +2,9 @@ package me.hwanse.chatserver.chat;
 
 import me.hwanse.chatserver.chat.text.ChatMessage;
 import me.hwanse.chatserver.chat.text.MessageType;
+import me.hwanse.chatserver.chatroom.ChatRoom;
 import me.hwanse.chatserver.chatroom.service.ChatRoomService;
+import me.hwanse.chatserver.exception.NotFoundException;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -56,7 +58,7 @@ public class ChatStompTest {
         WebSocketStompClient stompClient = new WebSocketStompClient(new SockJsClient(createTransportClient()));
         stompClient.setMessageConverter(new MappingJackson2MessageConverter());
 
-        StompSession stompSession = stompClient.connect(WEBSOCKET_FULL_URL, new StompSessionHandlerAdapter() {})
+        StompSession stompSession = stompClient.connect(WEBSOCKET_FULL_URL, getStompSessionHandlerAdapter())
                 .get(1, TimeUnit.SECONDS);
 
         long roomId = 1L;
@@ -64,9 +66,10 @@ public class ChatStompTest {
                 MessageType.JOIN, stompSession.getSessionId());
 
         // when
-        stompSession.subscribe(getSubscribeChatRoomUrl(roomId), new ChatMessageStompFrameHandler());
+        stompSession.subscribe(getSubscribeChatRoomUrl(roomId), new ChatMessageStompFrameHandler(completableFuture));
         stompSession.send(CHAT_JOIN_ENDPOINT, chatMessage);
-        ChatMessage returnMessage = completableFuture.get(5, TimeUnit.SECONDS);
+
+        ChatMessage returnMessage = completableFuture.join();
 
         // then
         assertThat(returnMessage).isNotNull();
@@ -82,24 +85,46 @@ public class ChatStompTest {
         WebSocketStompClient stompClient = new WebSocketStompClient(new SockJsClient(createTransportClient()));
         stompClient.setMessageConverter(new MappingJackson2MessageConverter());
 
-        StompSession stompSession = stompClient.connect(WEBSOCKET_FULL_URL, new StompSessionHandlerAdapter() {})
+        StompSession senderSession = stompClient.connect(WEBSOCKET_FULL_URL, getStompSessionHandlerAdapter())
                 .get(1, TimeUnit.SECONDS);
+
 
         long roomId = 1L;
         String sender = "user";
-        ChatMessage chatMessage = new ChatMessage(roomId, "채팅 내용", sender,
-                MessageType.TALK, stompSession.getSessionId());
+        ChatMessage chatMessage = new ChatMessage(roomId, "채팅 내용", sender, MessageType.TALK, senderSession.getSessionId());
+
+        List<StompSession> clients = new ArrayList<>();
+        List<CompletableFuture<ChatMessage>> futures = new ArrayList<>();
+        for (int i = 0; i < 5; i++) {
+            CompletableFuture<ChatMessage> future = new CompletableFuture<>();
+            StompSession session = stompClient.connect(WEBSOCKET_FULL_URL, getStompSessionHandlerAdapter()).get(1, TimeUnit.SECONDS);
+            session.subscribe(getSubscribeChatRoomUrl(roomId), new ChatMessageStompFrameHandler(future));
+
+            futures.add(future);
+            clients.add(session);
+        }
 
         // when
-        stompSession.subscribe(getSubscribeChatRoomUrl(roomId), new ChatMessageStompFrameHandler());
-        stompSession.send(CHAT_TEXT_TALK_ENDPOINT, chatMessage);
-        ChatMessage returnMessage = completableFuture.get(5, TimeUnit.SECONDS);
+        senderSession.subscribe(getSubscribeChatRoomUrl(roomId), new ChatMessageStompFrameHandler(completableFuture));
+        senderSession.send(CHAT_TEXT_TALK_ENDPOINT, chatMessage);
+        ChatMessage returnMessage = completableFuture.join();
 
         // then
         assertThat(returnMessage).isNotNull();
-        assertThat(returnMessage.getSessionId()).isEqualTo(stompSession.getSessionId());
+        assertThat(returnMessage.getSessionId()).isEqualTo(senderSession.getSessionId());
         assertThat(returnMessage.getSender()).isEqualTo(sender);
         assertThat(returnMessage.getMessageType()).isEqualTo(MessageType.TALK);
+
+        assertThat(futures).allSatisfy(future -> {
+            ChatMessage message = future.join();
+            assertThat(message).isNotNull();
+            assertThat(message.getSender()).isEqualTo(sender);
+            assertThat(message.getSessionId()).isEqualTo(senderSession.getSessionId());
+        });
+    }
+
+    private StompSessionHandlerAdapter getStompSessionHandlerAdapter() {
+        return new StompSessionHandlerAdapter() {};
     }
 
     private List<Transport> createTransportClient() {
@@ -113,7 +138,14 @@ public class ChatStompTest {
         return String.format(SUBSCRIBE_CHATROOM_URL, roomId);
     }
 
-    private class ChatMessageStompFrameHandler implements StompFrameHandler {
+    static class ChatMessageStompFrameHandler implements StompFrameHandler {
+
+        private final CompletableFuture<ChatMessage> completableFuture;
+
+        public ChatMessageStompFrameHandler(CompletableFuture<ChatMessage> completableFuture) {
+            this.completableFuture = completableFuture;
+        }
+
         @Override
         public Type getPayloadType(StompHeaders headers) {
             return ChatMessage.class;
@@ -121,8 +153,9 @@ public class ChatStompTest {
 
         @Override
         public void handleFrame(StompHeaders headers, Object payload) {
-            completableFuture.complete((ChatMessage) payload);
+            this.completableFuture.complete((ChatMessage) payload);
         }
+
     }
 
 }
