@@ -1,6 +1,7 @@
 package me.hwanse.chatserver.chatroom.controller;
 
 import lombok.RequiredArgsConstructor;
+import me.hwanse.chatserver.api.ApiResult;
 import me.hwanse.chatserver.chatroom.ChatRoom;
 import me.hwanse.chatserver.chatroom.dto.ChatRoomDto;
 import me.hwanse.chatserver.chatroom.service.ChatRoomService;
@@ -10,6 +11,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import static me.hwanse.chatserver.api.ApiResult.OK;
+
 @RestController
 @RequestMapping("/api/chat-room")
 @RequiredArgsConstructor
@@ -18,20 +21,23 @@ public class ChatRoomController {
     private final ChatRoomService chatRoomService;
 
     @PostMapping
-    public ChatRoomDto createChatRoom(@RequestBody Map<String, String> input) {
+    public ApiResult createChatRoom(@RequestBody Map<String, String> input) {
         ChatRoom chatRoom = chatRoomService.createChatRoom(input.get("title"));
-        return new ChatRoomDto(chatRoom);
+        return OK(chatRoom);
     }
 
     @GetMapping
-    public List<ChatRoomDto> getAllChatRooms() {
-        return chatRoomService.findAllChatRooms().stream()
+    public ApiResult getAllChatRooms() {
+        List<ChatRoomDto> chatRooms = chatRoomService.findAllChatRooms().stream()
                 .map(ChatRoomDto::new).collect(Collectors.toList());
+        return OK(chatRooms);
     }
 
     @GetMapping("/{id}")
-    public ChatRoomDto getChatRoom(@PathVariable Long id) {
-        return new ChatRoomDto(chatRoomService.findChatRoomById(id));
+    public ApiResult getChatRoom(@PathVariable Long id) {
+        return OK(
+                new ChatRoomDto(chatRoomService.findChatRoomById(id))
+        );
     }
 
 }

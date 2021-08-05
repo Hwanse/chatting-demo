@@ -57,13 +57,15 @@ class ChatRoomControllerTest {
 
         // then
         resultActions.andDo(print())
-                .andExpect(jsonPath("$.id").exists())
-                .andExpect(jsonPath("$.title").exists())
-                .andExpect(jsonPath("$.limitUserCount").isNumber())
-                .andExpect(jsonPath("$.userCount").isNumber())
-                .andExpect(jsonPath("$.createdAt").exists())
-                .andExpect(jsonPath("$.deletedAt").isEmpty())
-                .andExpect(jsonPath("$.use").value(true));
+                .andExpect(jsonPath("$.success").value(true))
+                .andExpect(jsonPath("$.data.id").exists())
+                .andExpect(jsonPath("$.data.title").exists())
+                .andExpect(jsonPath("$.data.limitUserCount").isNumber())
+                .andExpect(jsonPath("$.data.userCount").isNumber())
+                .andExpect(jsonPath("$.data.createdAt").exists())
+                .andExpect(jsonPath("$.data.deletedAt").isEmpty())
+                .andExpect(jsonPath("$.data.use").value(true))
+                .andExpect(jsonPath("$.error").isEmpty());
     }
 
     @Test
@@ -83,15 +85,17 @@ class ChatRoomControllerTest {
 
         // then
         resultActions.andDo(print())
-                .andExpect(jsonPath("$").isArray())
-                .andExpect(jsonPath("$.[0]").isMap())
-                .andExpect(jsonPath("$.[0].id").exists())
-                .andExpect(jsonPath("$.[0].title").exists())
-                .andExpect(jsonPath("$.[0].limitUserCount").exists())
-                .andExpect(jsonPath("$.[0].userCount").exists())
-                .andExpect(jsonPath("$.[0].createdAt").exists())
-                .andExpect(jsonPath("$.[0].deletedAt").isEmpty())
-                .andExpect(jsonPath("$.[0].use").exists());
+                .andExpect(jsonPath("$.success").value(true))
+                .andExpect(jsonPath("$.data").isArray())
+                .andExpect(jsonPath("$.data[0]").isMap())
+                .andExpect(jsonPath("$.data[0].id").exists())
+                .andExpect(jsonPath("$.data[0].title").exists())
+                .andExpect(jsonPath("$.data[0].limitUserCount").exists())
+                .andExpect(jsonPath("$.data[0].userCount").exists())
+                .andExpect(jsonPath("$.data[0].createdAt").exists())
+                .andExpect(jsonPath("$.data[0].deletedAt").isEmpty())
+                .andExpect(jsonPath("$.data[0].use").exists())
+                .andExpect(jsonPath("$.error").isEmpty());
     }
 
     @Test
@@ -107,13 +111,15 @@ class ChatRoomControllerTest {
 
         // then
         resultActions.andDo(print())
-                .andExpect(jsonPath("$.id").exists())
-                .andExpect(jsonPath("$.title").exists())
-                .andExpect(jsonPath("$.limitUserCount").exists())
-                .andExpect(jsonPath("$.userCount").exists())
-                .andExpect(jsonPath("$.createdAt").exists())
-                .andExpect(jsonPath("$.deletedAt").isEmpty())
-                .andExpect(jsonPath("$.use").exists());
+                .andExpect(jsonPath("$.success").value(true))
+                .andExpect(jsonPath("$.data.id").exists())
+                .andExpect(jsonPath("$.data.title").exists())
+                .andExpect(jsonPath("$.data.limitUserCount").isNumber())
+                .andExpect(jsonPath("$.data.userCount").isNumber())
+                .andExpect(jsonPath("$.data.createdAt").exists())
+                .andExpect(jsonPath("$.data.deletedAt").isEmpty())
+                .andExpect(jsonPath("$.data.use").value(true))
+                .andExpect(jsonPath("$.error").isEmpty());
     }
 
     private ChatRoom getChatRoom(Long id, String title) {
