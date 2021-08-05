@@ -1,16 +1,17 @@
 package me.hwanse.chatserver.chatroom.service;
 
-import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import me.hwanse.chatserver.chatroom.ChatRoom;
 import me.hwanse.chatserver.chatroom.ChatVisitor;
 import me.hwanse.chatserver.chatroom.repository.ChatRoomRepository;
 import me.hwanse.chatserver.chatroom.repository.ChatVisitorRepository;
+import me.hwanse.chatserver.exception.NotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Supplier;
 
 @Service
 @RequiredArgsConstructor
@@ -26,7 +27,7 @@ public class ChatVisitorService {
 
     @Transactional
     public ChatVisitor addChatVisitor(Long roomId, String sessionId) {
-        ChatRoom chatRoom = chatRoomRepository.findById(roomId).orElseThrow(IllegalArgumentException::new);
+        ChatRoom chatRoom = chatRoomRepository.findById(roomId).orElseThrow(() -> new NotFoundException(ChatRoom.class, roomId));
         Optional<ChatVisitor> visitor = chatVisitorRepository.findVisitorByChatRoomIdAndSessionId(roomId, sessionId);
 
         if (!visitor.isPresent()) {

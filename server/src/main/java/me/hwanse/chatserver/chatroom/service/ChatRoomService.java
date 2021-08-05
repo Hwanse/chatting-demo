@@ -3,6 +3,7 @@ package me.hwanse.chatserver.chatroom.service;
 import lombok.RequiredArgsConstructor;
 import me.hwanse.chatserver.chatroom.ChatRoom;
 import me.hwanse.chatserver.chatroom.repository.ChatRoomRepository;
+import me.hwanse.chatserver.exception.NotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -20,21 +21,11 @@ public class ChatRoomService {
 
     public ChatRoom findChatRoomById(Long id) {
         return chatRoomRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("채팅방을 찾을 수 없습니다."));
+                .orElseThrow(() -> new NotFoundException(ChatRoom.class, id));
     }
 
     public List<ChatRoom> findAllChatRooms() {
         return chatRoomRepository.findByUseTrueOrderByCreatedAtDesc();
-    }
-
-    @Transactional
-    public void increaseChatRoomUserCount(Long roomId) {
-        chatRoomRepository.findById(roomId).ifPresent(ChatRoom::increaseUserCount);
-    }
-
-    @Transactional
-    public void decreaseChatRoomUserCount(Long roomId) {
-        chatRoomRepository.findById(roomId).ifPresent(ChatRoom::decreaseUserCount);
     }
 
     @Transactional

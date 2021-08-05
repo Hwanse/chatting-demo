@@ -31,6 +31,9 @@ dependencies {
     implementation group: 'com.querydsl', name: 'querydsl-jpa', version: querydslVersion
     implementation group: 'com.querydsl', name: 'querydsl-apt', version: querydslVersion
     implementation group: 'com.querydsl', name: 'querydsl-core', version: querydslVersion
+    // apache commons
+    implementation group: 'org.apache.commons', name: 'commons-lang3', version: '3.12.0'
+
 
 }
 

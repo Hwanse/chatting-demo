@@ -10,7 +10,6 @@ import me.hwanse.chatserver.chatroom.ChatVisitorRole;
 @Getter
 @Setter
 @NoArgsConstructor
-@AllArgsConstructor
 public class ChatVisitorDto {
 
     private Long id;
