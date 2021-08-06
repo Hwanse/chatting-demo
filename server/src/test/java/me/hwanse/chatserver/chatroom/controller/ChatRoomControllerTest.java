@@ -2,6 +2,7 @@ package me.hwanse.chatserver.chatroom.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import me.hwanse.chatserver.chatroom.ChatRoom;
+import me.hwanse.chatserver.chatroom.dto.CreateChatRoomRequest;
 import me.hwanse.chatserver.chatroom.service.ChatRoomService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -45,15 +46,16 @@ class ChatRoomControllerTest {
     public void createApiTest() throws Exception {
         // given
         ChatRoom chatRoom = getChatRoom(1L, TITLE);
-        given(chatRoomService.createChatRoom(any())).willReturn(chatRoom);
+        given(chatRoomService.createChatRoom(chatRoom.getTitle(), chatRoom.getLimitUserCount())).willReturn(chatRoom);
 
-        Map<String, String> request = new HashMap<>();
-        request.put("title", TITLE);
+        CreateChatRoomRequest createRequest = new CreateChatRoomRequest();
+        createRequest.setTitle(TITLE);
+        createRequest.setLimitUserCount(chatRoom.getLimitUserCount());
 
         // when
         ResultActions resultActions = mockMvc.perform(post("/api/chat-room")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(request)));
+                .content(objectMapper.writeValueAsString(createRequest)));
 
         // then
         resultActions.andDo(print())
@@ -124,10 +126,11 @@ class ChatRoomControllerTest {
 
     private ChatRoom getChatRoom(Long id, String title) {
         return ChatRoom.builder()
-                .id(1L)
+                .id(id)
                 .title(title)
                 .createdAt(LocalDateTime.now())
                 .use(true)
+                .limitUserCount(5)
                 .build();
     }
 

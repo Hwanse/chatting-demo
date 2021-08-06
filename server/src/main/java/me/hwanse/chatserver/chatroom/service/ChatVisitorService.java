@@ -28,13 +28,11 @@ public class ChatVisitorService {
     @Transactional
     public ChatVisitor addChatVisitor(Long roomId, String sessionId) {
         ChatRoom chatRoom = chatRoomRepository.findById(roomId).orElseThrow(() -> new NotFoundException(ChatRoom.class, roomId));
-        Optional<ChatVisitor> visitor = chatVisitorRepository.findVisitorByChatRoomIdAndSessionId(roomId, sessionId);
-
-        if (!visitor.isPresent()) {
-            chatRoom.increaseUserCount();
-            return chatVisitorRepository.save(new ChatVisitor(chatRoom, sessionId));
-        }
-        return visitor.get();
+        return chatVisitorRepository.findVisitorByChatRoomIdAndSessionId(roomId, sessionId)
+                .orElseGet(() -> {
+                    chatRoom.increaseUserCount();
+                    return chatVisitorRepository.save(new ChatVisitor(chatRoom, sessionId));
+                });
     }
 
     @Transactional

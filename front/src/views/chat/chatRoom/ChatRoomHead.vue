@@ -22,7 +22,6 @@ export default {
     },
     watch: {
         info(newVal) {
-            // this.info.userCount = newVal
             this.userCount = newVal
         }
     }

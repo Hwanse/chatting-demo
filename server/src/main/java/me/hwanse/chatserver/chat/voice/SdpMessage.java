@@ -3,6 +3,7 @@ package me.hwanse.chatserver.chat.voice;
 import lombok.*;
 
 import javax.validation.constraints.Min;
+import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 
@@ -15,10 +16,10 @@ public class SdpMessage {
     @Min(1)
     private Long roomId;
 
-    @NotEmpty
+    @NotBlank
     private String fromId;
 
-    @NotEmpty
+    @NotBlank
     private String toId;
 
     private RTCSessionDescription sdp;

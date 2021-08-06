@@ -6,6 +6,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import javax.validation.constraints.Min;
+import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 
@@ -17,7 +18,7 @@ public class LeaveMessage {
     @Min(1)
     private Long roomId;
 
-    @NotEmpty
+    @NotBlank
     private String sessionId;
 
 }

@@ -45,7 +45,9 @@ public class ChatRoom {
     }
 
     public void increaseUserCount() {
-        this.userCount++;
+        if (userCount < limitUserCount) {
+           this.userCount++;
+        }
     }
 
     public void decreaseUserCount() {
