@@ -48,7 +48,7 @@ public class ChatStompTest {
     public void setup() {
         WEBSOCKET_FULL_URL = String.format("%s:%d/ws/chat", LOCAL_URL_PREFIX, port);
         completableFuture = new CompletableFuture<>();
-        chatRoomService.createChatRoom("채팅방");
+        chatRoomService.createChatRoom("채팅방", 5);
     }
 
     @Test

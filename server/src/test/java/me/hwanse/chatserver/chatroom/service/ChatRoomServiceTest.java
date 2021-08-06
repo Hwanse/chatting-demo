@@ -31,11 +31,12 @@ class ChatRoomServiceTest {
     @DisplayName("채팅방을 생성한다")
     public void createChatRoomTest() throws Exception {
         // given
-        ChatRoom chatRoom = new ChatRoom(TITLE);
+        int limitUserCount = 5;
+        ChatRoom chatRoom = new ChatRoom(TITLE, limitUserCount);
         given(chatRoomRepository.save(any())).willReturn(savedChatRoom(chatRoom));
 
         // when
-        ChatRoom saved = chatRoomService.createChatRoom(TITLE);
+        ChatRoom saved = chatRoomService.createChatRoom(TITLE, limitUserCount);
 
         // then
         assertThat(saved).isNotNull();

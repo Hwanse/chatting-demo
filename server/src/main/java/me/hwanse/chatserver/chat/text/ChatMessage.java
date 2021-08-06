@@ -3,6 +3,7 @@ package me.hwanse.chatserver.chat.text;
 import lombok.*;
 
 import javax.validation.constraints.Min;
+import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 
@@ -23,7 +24,7 @@ public class ChatMessage {
 
     private MessageType messageType;
 
-    @NotEmpty
+    @NotBlank
     private String sessionId;
 
 }

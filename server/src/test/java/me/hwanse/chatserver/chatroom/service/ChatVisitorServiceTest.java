@@ -45,6 +45,7 @@ class ChatVisitorServiceTest {
         ChatRoom chatRoom = ChatRoom.builder()
                 .id(roomId)
                 .title(title)
+                .limitUserCount(5)
                 .userCount(0)
                 .build();
         ChatVisitor chatVisitor = new ChatVisitor(chatRoom, sessionId);
