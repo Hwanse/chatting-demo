@@ -1,8 +1,7 @@
 package me.hwanse.chatserver.user;
 
 
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
@@ -10,7 +9,10 @@ import java.time.LocalDateTime;
 @Entity
 @Getter
 @NoArgsConstructor
+@AllArgsConstructor
+@Builder(toBuilder = true)
 @Table(name = "users")
+@ToString
 public class User {
 
     @Id
@@ -29,4 +31,11 @@ public class User {
 
     private boolean use;
 
+    public User(String userId, String password) {
+        this.userId = userId;
+        this.password = password;
+        this.createdAt = LocalDateTime.now();
+        this.updatedAt = LocalDateTime.now();
+        this.use = true;
+    }
 }
