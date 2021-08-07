@@ -9,6 +9,7 @@ version = '0.0.1-SNAPSHOT'
 sourceCompatibility = '1.8'
 def p6spyVersion = '1.7.1'
 def querydslVersion = '4.4.0'
+def jjwtVersion = '0.11.2'
 
 repositories {
     mavenCentral()
@@ -26,7 +27,11 @@ dependencies {
     developmentOnly 'org.springframework.boot:spring-boot-devtools'
     runtimeOnly 'com.h2database:h2'
     annotationProcessor 'org.projectlombok:lombok'
+    annotationProcessor "org.springframework.boot:spring-boot-configuration-processor"
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
+
+
+
 
     // p6spy
     implementation("com.github.gavlyukovskiy:p6spy-spring-boot-starter:${p6spyVersion}")
@@ -36,7 +41,10 @@ dependencies {
     implementation group: 'com.querydsl', name: 'querydsl-core', version: querydslVersion
     // apache commons
     implementation group: 'org.apache.commons', name: 'commons-lang3', version: '3.12.0'
-
+    // jwt
+    implementation "io.jsonwebtoken:jjwt-api:${jjwtVersion}"
+    runtimeOnly "io.jsonwebtoken:jjwt-impl:${jjwtVersion}",
+                "io.jsonwebtoken:jjwt-jackson:${jjwtVersion}"
 
 }
 

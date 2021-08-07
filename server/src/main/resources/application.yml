@@ -26,3 +26,10 @@ spring:
   h2:
     console:
       enabled: true
+
+jwt:
+  token:
+    header: Authorization
+    issuer: ${spring.application.name}
+    secret: aHdhbnNlLXNwcmluZy1zZWN1cml0eS1qd3QtYXV0aC1zZXJ2ZXItc2VjcmV0LWtleQo=
+    expiration: 3600
