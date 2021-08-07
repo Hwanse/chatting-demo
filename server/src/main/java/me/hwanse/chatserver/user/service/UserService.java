@@ -1,8 +1,10 @@
 package me.hwanse.chatserver.user.service;
 
 import lombok.RequiredArgsConstructor;
+import me.hwanse.chatserver.exception.DuplicateException;
 import me.hwanse.chatserver.user.User;
 import me.hwanse.chatserver.user.repository.UserRepository;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -11,14 +13,21 @@ import org.springframework.transaction.annotation.Transactional;
 public class UserService {
 
     private final UserRepository userRepository;
-
+    private final PasswordEncoder passwordEncoder;
 
     @Transactional
     public User userSignUp(String userId, String password) {
-        // TODO id 중복 체크
+        if (checkDuplicatedUserId(userId)) {
+            throw new DuplicateException(User.class, userId);
+        }
 
-        // TODO 유저 회원 가입
-        return null;
+        User user = new User(userId, passwordEncoder.encode(password));
+        return userRepository.save(user);
+    }
+
+    @Transactional(readOnly = true)
+    public boolean checkDuplicatedUserId(String userId) {
+        return userRepository.existsUserByUserId(userId);
     }
 
 }

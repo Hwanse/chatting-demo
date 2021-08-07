@@ -28,6 +28,11 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
             .headers().frameOptions().disable()
                 .and()
             .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                .and()
+            .authorizeRequests()
+            .mvcMatchers("/api/signup").permitAll()
+            .mvcMatchers("/api/login").permitAll()
+            .anyRequest().authenticated()
         ;
     }
 
