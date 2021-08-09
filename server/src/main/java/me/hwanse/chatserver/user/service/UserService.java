@@ -1,6 +1,8 @@
 package me.hwanse.chatserver.user.service;
 
 import lombok.RequiredArgsConstructor;
+import me.hwanse.chatserver.auth.AuthenticationAccessDenied;
+import me.hwanse.chatserver.auth.JwtAuthenticationEntryPoint;
 import me.hwanse.chatserver.exception.DuplicateException;
 import me.hwanse.chatserver.user.User;
 import me.hwanse.chatserver.user.repository.UserRepository;
