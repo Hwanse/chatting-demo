@@ -5,9 +5,13 @@ import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import lombok.extern.slf4j.Slf4j;
 import me.hwanse.chatserver.user.User;
+import me.hwanse.chatserver.user.service.UserDetailsProvider;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
@@ -20,13 +24,18 @@ import java.util.stream.Collectors;
 @Component
 public class JwtProvider {
 
-    private final JwtProperty jwtProperty;
-    private final Key key;
+    public static final String AUTHORIZATION_HEADER = "Authorization";
+    public static final String TOKEN_TYPE = "Bearer";
     private final String HEADER_TYPE = "JWT";
 
-    public JwtProvider(JwtProperty jwtProperty) {
+    private final Key key;
+    private final JwtProperty jwtProperty;
+    private final UserDetailsProvider userDetailsProvider;
+
+    public JwtProvider(JwtProperty jwtProperty, UserDetailsProvider userDetailsProvider) {
         this.jwtProperty = jwtProperty;
         this.key = settingKey(jwtProperty);
+        this.userDetailsProvider = userDetailsProvider;
     }
 
     public Key settingKey(JwtProperty jwtProperty) {
@@ -35,7 +44,7 @@ public class JwtProvider {
         return secretKey;
     }
 
-    public String createToken(User user) {
+    public String createToken(String userId) {
         Date exp = new Date();
         exp.setTime(exp.getTime() + (jwtProperty.getExpiration() * 1000L));
 
@@ -43,20 +52,21 @@ public class JwtProvider {
                 .setHeader(defaultHeader())
                 .setIssuer(jwtProperty.getIssuer())
                 .setSubject("userInfo")
-                .setClaims(setClaims(user))
+                .setClaims(createClaimAttributes(userId))
                 .setExpiration(exp)
                 .signWith(key, SignatureAlgorithm.HS256)
                 .compact();
     }
 
     public Optional<Claims> verifyToken(String token) {
-        Claims claims = null;
         try {
-            claims = Jwts.parserBuilder()
+            Claims claims = Jwts.parserBuilder()
                     .setSigningKey(key)
                     .build()
                     .parseClaimsJws(token)
                     .getBody();
+
+            return Optional.of(claims);
         } catch (io.jsonwebtoken.security.SecurityException | MalformedJwtException e) {
             log.debug("잘못된 JWT 서명입니다.");
         } catch (ExpiredJwtException e) {
@@ -67,26 +77,18 @@ public class JwtProvider {
             log.debug("JWT 토큰이 잘못되었습니다.");
         }
 
-        return Optional.ofNullable(claims);
+        return Optional.empty();
     }
 
-    public Optional<Authentication> getAuthentication(Claims claims, String token) {
-        String seq = claims.get("seq", String.class);
+    public Optional<Authentication> getAuthentication(Claims claims) {
         String userId = claims.get("userId", String.class);
 
-        if (validateClaims(seq, userId)) {
-            // TODO authentication 정보 추출
-            return Optional.ofNullable(null);
+        if (StringUtils.hasText(userId)) {
+            UserDetails userDetails = userDetailsProvider.loadUserByUsername(userId);
+            return Optional.of(new UsernamePasswordAuthenticationToken(userDetails, "", userDetails.getAuthorities()));
         } else {
             return Optional.empty();
         }
-    }
-
-    private boolean validateClaims(String seq, String userId) {
-        if (StringUtils.hasText(seq) && StringUtils.hasText(userId)) {
-            return true;
-        }
-        return false;
     }
 
     public Map<String, Object> defaultHeader() {
@@ -96,10 +98,9 @@ public class JwtProvider {
         return headers;
     }
 
-    public Map<String, Object> setClaims(User user) {
+    public Map<String, Object> createClaimAttributes(String userId) {
         Map<String, Object> claims = new HashMap<>();
-        claims.put("seq", String.valueOf(user.getId()));
-        claims.put("userId", user.getUserId());
+        claims.put("userId", userId);
         return claims;
     }
 
