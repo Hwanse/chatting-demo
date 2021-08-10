@@ -1,8 +1,7 @@
 package me.hwanse.chatserver.user.repository;
 
-import me.hwanse.chatserver.TestConfig;
+import me.hwanse.chatserver.config.RepositoryTestConfig;
 import me.hwanse.chatserver.user.User;
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -13,7 +12,7 @@ import org.springframework.context.annotation.Import;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @DataJpaTest
-@Import(TestConfig.class)
+@Import(RepositoryTestConfig.class)
 class UserRepositoryTest {
 
     @Autowired
