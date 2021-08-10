@@ -50,8 +50,6 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
-        http.apply(new JwtFilterConfig(jwtProvider));
-
         http
             .csrf().disable()
             .formLogin().disable()
@@ -62,13 +60,13 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
             .authorizeRequests()
             .mvcMatchers("/api/login").permitAll()
             .mvcMatchers("/api/signup").permitAll()
-            .anyRequest().permitAll()
-//            .anyRequest().authenticated()
+            .anyRequest().authenticated()
                 .and()
             .exceptionHandling()
             .authenticationEntryPoint(jwtAuthenticationEntryPoint)
-            .accessDeniedHandler(authenticationAccessDenied)
-        ;
+            .accessDeniedHandler(authenticationAccessDenied);
+
+        http.addFilterBefore(new JwtAuthenticationFilter(jwtProvider), UsernamePasswordAuthenticationFilter.class);
     }
 
     @Bean

@@ -41,23 +41,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         filterChain.doFilter(request, response);
     }
 
-    /**
-     * 요청 URL이 '/api/login', '/api/signup' 일 경우 필터를 거치지 않는다.
-     * true 리턴 시 다음 필터로 skip, false 리턴 시 이 Filter 내부에 정의한 doFilterInternal 를 거친다.
-     */
-//    @Override
-//    protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
-//        AntPathMatcher pathMatcher = new AntPathMatcher();
-//        String requestURI = request.getRequestURI();
-//
-//        if (pathMatcher.match("/api/login", requestURI)
-//            || pathMatcher.match("/api/signup", requestURI)) {
-//            return true;
-//        }
-//
-//        return false;
-//    }
-
     private String resolveToken(HttpServletRequest request) {
         String headerToken = request.getHeader(AUTHORIZATION_HEADER);
 

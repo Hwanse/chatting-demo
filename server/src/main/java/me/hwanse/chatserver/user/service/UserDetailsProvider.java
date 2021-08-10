@@ -21,7 +21,7 @@ public class UserDetailsProvider implements UserDetailsService {
     @Override
     public UserDetails loadUserByUsername(String userId) throws UsernameNotFoundException {
         return userRepository.findUserByUserId(userId)
-                .map(user -> new org.springframework.security.core.userdetails.User(userId, "", getAuthorities()))
+                .map(user -> new org.springframework.security.core.userdetails.User(userId, user.getPassword(), getAuthorities()))
                 .orElseThrow(() -> new UsernameNotFoundException(userId + " is not found user."));
     }
 
