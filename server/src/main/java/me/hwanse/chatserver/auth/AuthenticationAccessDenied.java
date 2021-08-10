@@ -2,6 +2,7 @@ package me.hwanse.chatserver.auth;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import me.hwanse.chatserver.api.ApiResult;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
