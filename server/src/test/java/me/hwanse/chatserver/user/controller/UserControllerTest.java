@@ -1,8 +1,13 @@
 package me.hwanse.chatserver.user.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import me.hwanse.chatserver.auth.AuthenticationAccessDenied;
+import me.hwanse.chatserver.auth.JwtAuthenticationEntryPoint;
+import me.hwanse.chatserver.auth.JwtProvider;
+import me.hwanse.chatserver.config.WebTestWithSecurityConfig;
 import me.hwanse.chatserver.user.User;
 import me.hwanse.chatserver.user.dto.SignUpRequest;
+import me.hwanse.chatserver.user.service.UserDetailsProvider;
 import me.hwanse.chatserver.user.service.UserService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -11,7 +16,10 @@ import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.web.servlet.MockMvc;
@@ -25,7 +33,8 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 
-@WebMvcTest(UserController.class)
+@WebMvcTest(value = UserController.class, includeFilters = @ComponentScan.Filter(classes = {EnableWebSecurity.class}))
+@Import(WebTestWithSecurityConfig.class)
 class UserControllerTest {
 
     @Autowired

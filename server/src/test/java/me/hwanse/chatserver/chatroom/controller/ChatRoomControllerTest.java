@@ -4,12 +4,17 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import me.hwanse.chatserver.chatroom.ChatRoom;
 import me.hwanse.chatserver.chatroom.dto.CreateChatRoomRequest;
 import me.hwanse.chatserver.chatroom.service.ChatRoomService;
+import me.hwanse.chatserver.config.WebTestWithSecurityConfig;
+import me.hwanse.chatserver.config.WithMockJwtAuthentication;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 
@@ -27,7 +32,8 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 
-@WebMvcTest(ChatRoomController.class)
+@WebMvcTest(value = ChatRoomController.class, includeFilters = @ComponentScan.Filter(classes = {EnableWebSecurity.class}))
+@Import(WebTestWithSecurityConfig.class)
 class ChatRoomControllerTest {
 
     @MockBean
@@ -43,6 +49,7 @@ class ChatRoomControllerTest {
 
     @Test
     @DisplayName("채팅방 생성 API")
+    @WithMockJwtAuthentication
     public void createApiTest() throws Exception {
         // given
         ChatRoom chatRoom = getChatRoom(1L, TITLE);
@@ -72,6 +79,7 @@ class ChatRoomControllerTest {
 
     @Test
     @DisplayName("채팅방 전체 리스트 조회 API")
+    @WithMockJwtAuthentication
     public void getAllChatRoomsApi() throws Exception {
         // given
         List<ChatRoom> chatRooms = new ArrayList<>();
@@ -102,6 +110,7 @@ class ChatRoomControllerTest {
 
     @Test
     @DisplayName("채팅방 id로 조회")
+    @WithMockJwtAuthentication
     public void getChatRoomApi() throws Exception {
         // given
         ChatRoom chatRoom = getChatRoom(1L, TITLE);

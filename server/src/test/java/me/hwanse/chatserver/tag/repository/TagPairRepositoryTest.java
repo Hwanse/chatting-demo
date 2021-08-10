@@ -1,6 +1,6 @@
 package me.hwanse.chatserver.tag.repository;
 
-import me.hwanse.chatserver.TestConfig;
+import me.hwanse.chatserver.config.RepositoryTestConfig;
 import me.hwanse.chatserver.chatroom.ChatRoom;
 import me.hwanse.chatserver.chatroom.repository.ChatRoomRepository;
 import me.hwanse.chatserver.tag.Tag;
@@ -12,10 +12,9 @@ import org.springframework.context.annotation.Import;
 import org.springframework.transaction.annotation.Transactional;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.*;
 
 @DataJpaTest
-@Import(TestConfig.class)
+@Import(RepositoryTestConfig.class)
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class TagPairRepositoryTest {
 
