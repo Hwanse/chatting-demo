@@ -8,9 +8,12 @@ import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
+
+import static org.springframework.security.core.authority.AuthorityUtils.createAuthorityList;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -33,11 +36,12 @@ public class JwtAuthenticationProvider implements AuthenticationProvider {
             throw new BadCredentialsException("user password not matched");
         }
 
-        AuthToken authToken = new AuthToken(userId, password);
+        UsernamePasswordAuthenticationToken token =
+                new UsernamePasswordAuthenticationToken(userId, password, userDetails.getAuthorities());
         String jwt = jwtProvider.createToken(userId);
-        authToken.setDetails(jwt);
+        token.setDetails(jwt);
 
-        return authToken;
+        return token;
     }
 
     @Override
