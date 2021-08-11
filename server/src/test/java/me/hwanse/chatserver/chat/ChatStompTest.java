@@ -7,6 +7,7 @@ import me.hwanse.chatserver.chatroom.ChatRoom;
 import me.hwanse.chatserver.chatroom.service.ChatRoomService;
 import me.hwanse.chatserver.config.WithMockJwtAuthentication;
 import me.hwanse.chatserver.exception.NotFoundException;
+import me.hwanse.chatserver.user.repository.UserRepository;
 import me.hwanse.chatserver.user.service.UserService;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -48,6 +49,9 @@ public class ChatStompTest {
     @Autowired
     private UserService userService;
 
+    @Autowired
+    private UserRepository userRepository;
+
     @Value("${local.server.port}")
     private int port;
 
@@ -65,6 +69,11 @@ public class ChatStompTest {
         for (int i = 0; i < 5; i++) {
             userService.userSignUp("user" + (i + 1), "user" + (i + 1));
         }
+    }
+
+    @AfterEach
+    public void destroy() {
+        userRepository.deleteAll();
     }
 
     @Test
@@ -105,7 +114,7 @@ public class ChatStompTest {
         // given
         /* 메시지 수신자들 */
         long roomId = 1L;
-        String sender = "user";
+        String sender = "manager";
 
         List<StompSession> sessionList = new ArrayList<>();
         List<CompletableFuture<ChatMessage>> futures = new ArrayList<>();
