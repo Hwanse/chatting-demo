@@ -1,16 +1,20 @@
 package me.hwanse.chatserver.chat;
 
+import me.hwanse.chatserver.auth.JwtProvider;
 import me.hwanse.chatserver.chat.text.ChatMessage;
 import me.hwanse.chatserver.chat.text.MessageType;
 import me.hwanse.chatserver.chatroom.ChatRoom;
 import me.hwanse.chatserver.chatroom.service.ChatRoomService;
+import me.hwanse.chatserver.config.WithMockJwtAuthentication;
 import me.hwanse.chatserver.exception.NotFoundException;
+import me.hwanse.chatserver.user.service.UserService;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.messaging.converter.MappingJackson2MessageConverter;
 import org.springframework.messaging.simp.stomp.*;
+import org.springframework.web.socket.WebSocketHttpHeaders;
 import org.springframework.web.socket.client.standard.StandardWebSocketClient;
 import org.springframework.web.socket.messaging.WebSocketStompClient;
 import org.springframework.web.socket.sockjs.client.SockJsClient;
@@ -34,21 +38,33 @@ public class ChatStompTest {
     private final String CHAT_TEXT_TALK_ENDPOINT = "/pub/chat/text/message";
     private final String SUBSCRIBE_CHATROOM_URL = "/sub/chat-room/%d";
 
+    private final String USER_ID = "admin";
+
     private String WEBSOCKET_FULL_URL;
 
     @Autowired
     private ChatRoomService chatRoomService;
+
+    @Autowired
+    private UserService userService;
 
     @Value("${local.server.port}")
     private int port;
 
     private CompletableFuture<ChatMessage> completableFuture;
 
+    @Autowired
+    private JwtProvider jwtProvider;
+
     @BeforeEach
     public void setup() {
         WEBSOCKET_FULL_URL = String.format("%s:%d/ws/chat", LOCAL_URL_PREFIX, port);
         completableFuture = new CompletableFuture<>();
         chatRoomService.createChatRoom("채팅방", 5);
+        userService.userSignUp(USER_ID, USER_ID);
+        for (int i = 0; i < 5; i++) {
+            userService.userSignUp("user" + (i + 1), "user" + (i + 1));
+        }
     }
 
     @Test
@@ -58,7 +74,12 @@ public class ChatStompTest {
         WebSocketStompClient stompClient = new WebSocketStompClient(new SockJsClient(createTransportClient()));
         stompClient.setMessageConverter(new MappingJackson2MessageConverter());
 
-        StompSession stompSession = stompClient.connect(WEBSOCKET_FULL_URL, getStompSessionHandlerAdapter())
+        WebSocketHttpHeaders webSocketHttpHeaders = new WebSocketHttpHeaders();
+        webSocketHttpHeaders.add(JwtProvider.AUTHORIZATION_HEADER, JwtProvider.TOKEN_TYPE + " " + jwtProvider.createToken(USER_ID));
+
+        StompHeaders stompHeaders = new StompHeaders();
+        stompHeaders.add(JwtProvider.AUTHORIZATION_HEADER, jwtProvider.createToken(USER_ID));
+        StompSession stompSession = stompClient.connect(WEBSOCKET_FULL_URL, webSocketHttpHeaders, stompHeaders, getStompSessionHandlerAdapter())
                 .get(1, TimeUnit.SECONDS);
 
         long roomId = 1L;
@@ -82,27 +103,45 @@ public class ChatStompTest {
     @DisplayName("채팅방 텍스트 채팅 전파 테스트")
     public void sendMessageTest() throws Exception {
         // given
-        WebSocketStompClient stompClient = new WebSocketStompClient(new SockJsClient(createTransportClient()));
-        stompClient.setMessageConverter(new MappingJackson2MessageConverter());
-
-        StompSession senderSession = stompClient.connect(WEBSOCKET_FULL_URL, getStompSessionHandlerAdapter())
-                .get(1, TimeUnit.SECONDS);
-
-
+        /* 메시지 수신자들 */
         long roomId = 1L;
         String sender = "user";
-        ChatMessage chatMessage = new ChatMessage(roomId, "채팅 내용", sender, MessageType.TALK, senderSession.getSessionId());
 
-        List<StompSession> clients = new ArrayList<>();
+        List<StompSession> sessionList = new ArrayList<>();
         List<CompletableFuture<ChatMessage>> futures = new ArrayList<>();
         for (int i = 0; i < 5; i++) {
+            WebSocketStompClient tempStompClient = new WebSocketStompClient(new SockJsClient(createTransportClient()));
+            tempStompClient.setMessageConverter(new MappingJackson2MessageConverter());
             CompletableFuture<ChatMessage> future = new CompletableFuture<>();
-            StompSession session = stompClient.connect(WEBSOCKET_FULL_URL, getStompSessionHandlerAdapter()).get(1, TimeUnit.SECONDS);
+
+            WebSocketHttpHeaders tempWebSocketHttpHeaders = new WebSocketHttpHeaders();
+            String token = jwtProvider.createToken("user" + (i + 1));
+            tempWebSocketHttpHeaders.add(JwtProvider.AUTHORIZATION_HEADER, JwtProvider.TOKEN_TYPE + " " + token);
+
+            StompHeaders tempStompHeaders = new StompHeaders();
+            tempStompHeaders.add(JwtProvider.AUTHORIZATION_HEADER, token);
+
+            StompSession session = tempStompClient.connect(WEBSOCKET_FULL_URL, tempWebSocketHttpHeaders, tempStompHeaders,getStompSessionHandlerAdapter()).get(1, TimeUnit.SECONDS);
             session.subscribe(getSubscribeChatRoomUrl(roomId), new ChatMessageStompFrameHandler(future));
 
             futures.add(future);
-            clients.add(session);
+            sessionList.add(session);
         }
+
+        /* 메시지 전송자 */
+        WebSocketStompClient stompClient = new WebSocketStompClient(new SockJsClient(createTransportClient()));
+        stompClient.setMessageConverter(new MappingJackson2MessageConverter());
+
+        WebSocketHttpHeaders webSocketHttpHeaders = new WebSocketHttpHeaders();
+        webSocketHttpHeaders.add(JwtProvider.AUTHORIZATION_HEADER, JwtProvider.TOKEN_TYPE + " " + jwtProvider.createToken(USER_ID));
+
+        StompHeaders stompHeaders = new StompHeaders();
+        stompHeaders.add(JwtProvider.AUTHORIZATION_HEADER, jwtProvider.createToken(USER_ID));
+
+        StompSession senderSession = stompClient.connect(WEBSOCKET_FULL_URL, webSocketHttpHeaders, stompHeaders, getStompSessionHandlerAdapter())
+                .get(1, TimeUnit.SECONDS);
+
+        ChatMessage chatMessage = new ChatMessage(roomId, "채팅 내용", sender, MessageType.TALK, senderSession.getSessionId());
 
         // when
         senderSession.subscribe(getSubscribeChatRoomUrl(roomId), new ChatMessageStompFrameHandler(completableFuture));
