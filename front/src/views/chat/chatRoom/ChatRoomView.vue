@@ -8,7 +8,7 @@
 <script>
 import ChatRoomHead from "./ChatRoomHead.vue"
 import ChatRoomBody from "./ChatRoomBody.vue"
-import axios from "axios";
+import axios from "axios"
 
 export default {
     props: ['id'],
