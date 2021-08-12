@@ -25,7 +25,7 @@
 </template>
 
 <script>
-import axios from "axios"
+import chatApi from "@/api/chat/chatAPI.js"
 
 export default {
     props: ["show"],
@@ -39,17 +39,12 @@ export default {
             this.title = ''
             this.$emit("@cancel")
         },
-        create() {
+        async create() {
             if (!this.title.trim()) return
-
-            axios.post(`${location.protocol}//${location.host}/api/chat-room`, 
-                        JSON.stringify({title : this.title}),
-                        { headers : {"Content-Type" : "application/json"}})
-                 .then(response => {
-                    this.title = ''
-                    this.$emit("@create", response.data)
-                 })
-                 .catch(reason => console.log(reason))
+            
+            const chatRoomInfo = await chatApi.createChatRoom(this.title)
+            this.title = ''
+            this.$emit("@create", chatRoomInfo)
         }
     },
 }

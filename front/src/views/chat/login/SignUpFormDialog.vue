@@ -13,7 +13,7 @@
 </template>
 
 <script>
-import axios from "axios"
+import signApi from "@/api/sign/signAPI.js"
 
 export default {
     props: ['signUpForm'],
@@ -32,18 +32,12 @@ export default {
         cancel() {
             this.$emit("@cancel")
         },
-        signUp() {
-            let data = {
-                userId: this.id,
-                password: this.password
+        async signUp() {
+            const userInfo = await signApi.signUp(this.id, this.password)
+            if (!userInfo) {
+                alert("회원가입 오류")
             }
-
-            axios.post(`${location.protocol}//${location.host}/api/signup`, 
-                       JSON.stringify(data), 
-                       {
-                          headers: { 'Content-Type' : 'application/json'}
-                       })
-                .then(() => this.cancel())
+            this.cancel()
         }
     }
 }

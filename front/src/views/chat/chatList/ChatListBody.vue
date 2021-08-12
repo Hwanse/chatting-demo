@@ -16,7 +16,7 @@
 import ChatRoomListItem from "./parts/ChatRoomListItem.vue"
 import ChatRoomCreateDialog from "./parts/ChatRoomCreateDialog.vue"
 import ChatCreateButton from "./parts/ChatCreateButton.vue"
-import axios from "axios"
+import chatApi from "@/api/chat/chatAPI.js"
 
 export default {
     data() {
@@ -26,11 +26,7 @@ export default {
         }
     },
     mounted() {
-        this.getChatList()
-            .then(response => {
-                this.chatList = response.data.data
-            })
-            .catch(reason => console.log(reason))
+        this.bindChatList()
     },
     components: {
         ChatRoomListItem,
@@ -38,8 +34,9 @@ export default {
         ChatCreateButton
     },
     methods: {
-        async getChatList() {
-            return await axios.get(`${location.protocol}//${location.host}/api/chat-room`)
+        async bindChatList() {
+            const chatList = await chatApi.getChatList()
+            this.chatList = chatList
         },
         showDialog() {
             this.showCreateDialog = true
