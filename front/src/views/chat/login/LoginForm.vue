@@ -5,7 +5,7 @@
         
             <v-text-field v-model="password" label="Password" required></v-text-field>
         </v-form>
-        <v-btn color="success" class="mr-4" @click="login">
+        <v-btn color="success" class="mr-4" @click="signIn">
             Sign-In
         </v-btn>
         <v-btn color="info" class="mr-4" @click="showSignUpForm">
@@ -17,7 +17,7 @@
 </template>
 
 <script>
-import axios from "axios"
+import signApi from "@/api/sign/signAPI.js"
 import SignUpFormDialog from "./SignUpFormDialog.vue"
 
 export default {
@@ -29,26 +29,18 @@ export default {
         }
     },
     methods: {
-        async login() {
-            let data = {
-                userId: this.id,
-                password: this.password
-            }
-            axios.post(`${location.protocol}//${location.host}/api/login`, 
-                       JSON.stringify(data), 
-                       {
-                          headers: { 'Content-Type' : 'application/json'}
-                       })
-                .then(response => {
-                    const token = response.data.data.token
-                    console.log(token)
-                })
+        async signIn() {
+            await signApi.signIn(this.id, this.password)
+            this.goChatListView()
         },
         showSignUpForm() {
             this.signUpForm = true
         },
         hideSignUpForm() {
             this.signUpForm = false
+        },
+        goChatListView() {
+            this.$router.push({name: 'ChatListView'})
         }
     },
     components: {
