@@ -8,7 +8,7 @@ export default {
             const token = response.data.data.token
             
             if (token) {
-                window.localStorage.setItem('authToken', token)
+                window.sessionStorage.setItem('authToken', token)
             }
         } catch(error) {
             console.log(error)

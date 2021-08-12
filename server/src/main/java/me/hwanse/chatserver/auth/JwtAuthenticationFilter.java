@@ -1,6 +1,7 @@
 package me.hwanse.chatserver.auth;
 
 import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.JwtException;
 import lombok.extern.slf4j.Slf4j;
 import me.hwanse.chatserver.exception.JwtClaimsVerifyError;
 import org.springframework.security.core.Authentication;
@@ -33,9 +34,13 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         String token = resolveToken(httpServletRequest);
         if (!token.isEmpty()) {
-            Claims claims = jwtProvider.verifyToken(token).orElseThrow(JwtClaimsVerifyError::new);
-            Authentication authentication = jwtProvider.getAuthentication(claims).orElseThrow(IllegalArgumentException::new);
-            SecurityContextHolder.getContext().setAuthentication(authentication);
+            try {
+                Claims claims = jwtProvider.verifyToken(token);
+                Authentication authentication = jwtProvider.getAuthentication(claims).orElseThrow(IllegalArgumentException::new);
+                SecurityContextHolder.getContext().setAuthentication(authentication);
+            } catch (JwtException e) {
+                log.debug("unexpected error occurred during jwt verify : {}", e.getMessage(), e);
+            }
         }
 
         filterChain.doFilter(request, response);
@@ -43,9 +48,13 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private String resolveToken(HttpServletRequest request) {
         String headerToken = request.getHeader(AUTHORIZATION_HEADER);
+        String queryStringToken = request.getParameter("token");
 
         if (StringUtils.hasText(headerToken) && headerToken.startsWith(TOKEN_TYPE)) {
             return headerToken.split(" ")[1];
+        }
+        if (StringUtils.hasText(queryStringToken)) {
+            return queryStringToken;
         }
         return "";
     }

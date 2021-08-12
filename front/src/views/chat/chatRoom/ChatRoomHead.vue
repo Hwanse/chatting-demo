@@ -1,7 +1,7 @@
 <template>
     <v-toolbar dark color="primary" flat>
         <v-row class="d-flex align-center">
-            <v-btn icon @click="($router.go(-1))">
+            <v-btn icon @click="goToChatList">
                 <v-icon large>mdi-chevron-left</v-icon>
             </v-btn>
             <v-toolbar-title>{{info.title}}</v-toolbar-title>
@@ -23,6 +23,11 @@ export default {
     watch: {
         info(newVal) {
             this.userCount = newVal
+        }
+    },
+    methods: {
+        goToChatList() {
+            this.$router.push({name: "ChatListView"})
         }
     }
 }

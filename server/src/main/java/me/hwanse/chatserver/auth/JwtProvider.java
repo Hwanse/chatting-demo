@@ -58,26 +58,26 @@ public class JwtProvider {
                 .compact();
     }
 
-    public Optional<Claims> verifyToken(String token) {
+    public Claims verifyToken(String token) {
         try {
-            Claims claims = Jwts.parserBuilder()
+            return Jwts.parserBuilder()
                     .setSigningKey(key)
                     .build()
                     .parseClaimsJws(token)
                     .getBody();
-
-            return Optional.of(claims);
         } catch (io.jsonwebtoken.security.SecurityException | MalformedJwtException e) {
             log.debug("잘못된 JWT 서명입니다.");
+            throw e;
         } catch (ExpiredJwtException e) {
             log.debug("만료된 JWT 토큰입니다.");
+            throw e;
         } catch (UnsupportedJwtException e) {
             log.debug("지원되지 않는 JWT 토큰입니다.");
+            throw e;
         } catch (IllegalArgumentException e) {
-            log.debug("JWT 토큰이 잘못되었습니다.");
+            log.debug("입력된 JWT 토큰이 잘못되었습니다.");
+            throw e;
         }
-
-        return Optional.empty();
     }
 
     public Optional<Authentication> getAuthentication(Claims claims) {
