@@ -3,8 +3,8 @@ import request from "../request"
 export default {
     async signIn(id, password) {
         try {
-            let data = JSON.stringify({userId: id, password: password})
-            const response = await request.instance.post('/api/login', data)
+            let signInData = JSON.stringify({userId: id, password: password})
+            const response = await request.instance.post('/api/login', signInData)
             const token = response.data.data.token
 
             window.localStorage.setItem('authToken', token)
@@ -16,9 +16,9 @@ export default {
     },
     async signUp(id, password) {
         try {
-            let data = JSON.stringify({userId: id, password: password})
-            const response = request.post('/api/login', data)
-            return response.data.data.token
+            let signUpData = JSON.stringify({userId: id, password: password})
+            const response = await request.instance.post('/api/signup', signUpData)
+            return response.data.data
         } catch(error) {
             console.log(error)
         }
