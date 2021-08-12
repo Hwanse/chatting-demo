@@ -1,6 +1,6 @@
 <template>
     <div class="chat-room-container">
-        <ChatRoomHead :info="room"/>
+        <ChatRoomHead :info="room" />
         <ChatRoomBody :info="room" v-on:monitoring="updateUserCount"></ChatRoomBody>
     </div>
 </template>
@@ -15,7 +15,7 @@ export default {
     data() {
         return {
             room: {},
-            pollingRoomData: null,
+            pollingRoomData: null
         }
     },
     created() {

@@ -34,18 +34,24 @@ export default {
             this.sendMonitoringMessage()
         })
     },
+    beforeDestroy() {
+        this.bus.$emit("disconnect")
+        this.closeEvent()
+    },
     methods: {
         inputNickname(nickname) {
             if (!nickname.trim()) return
 
             this.noInputNickname = false
             this.nickname = nickname
+            const token = window.sessionStorage.getItem("authToken")
 
-            this.websocket = new SockJS(`${location.protocol}//${location.host}/ws/chat`)
+            // 웹 소켓 스펙 특성상 SockJs API를 활용한 헤더를 조작하여 토큰을 넣어줄수 없다. 따라서 쿼리스트링으로 전달 
+            this.websocket = new SockJS(`${location.protocol}//${location.host}/ws/chat?token=${token}`)
             // let options = {debug: false, protocols: Stomp.VERSIONS.supportedProtocols()};
             this.stompClient = Stomp.over(this.websocket)
             
-            this.stompClient.connect({}, this.onConnected, this.onConnectError)
+            this.stompClient.connect({"Authorization": `Bearer ${token}`}, this.onConnected, this.onConnectError)
         },
         async onConnected() {
             await this.bindSessionId()
@@ -56,6 +62,7 @@ export default {
             this.stompClient.subscribe(`/sub/chat-room/${this.info.id}/leave`, this.receiveLeaveMessage)
             
             this.bus.$emit("connect", this.chatSetupData())           
+            
             window.addEventListener("beforeunload", this.closeEvent)
         },
         onConnectError(error) {
@@ -109,11 +116,11 @@ export default {
             this.bus.$emit("leave", response)
         },
         closeEvent(event) {
-            event.preventDefault()
+            if (event) event.preventDefault()
             clearInterval(this.monitoringInterval)
             this.stompClient.disconnect()
             this.websocket.close()
-        } 
+        }
     },
     components: {
         ChatInputNicknameDialog,

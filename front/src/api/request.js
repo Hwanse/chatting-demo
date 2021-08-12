@@ -16,7 +16,7 @@ const request = axios.create({
  * localStorage에 저장된 토큰 값을 꺼내 셋팅하도록 변경 
  */
 request.interceptors.request.use(config => {
-    const token = window.localStorage.getItem('authToken')
+    const token = window.sessionStorage.getItem('authToken')
     if (token) {
         config.headers.Authorization = `Bearer ${token}`
     }

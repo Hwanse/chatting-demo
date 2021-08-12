@@ -28,6 +28,7 @@ export default {
         this.bus.$on("join", this.userJoinEvent)
         this.bus.$on("signalling", this.getMessageFromSignallingServer)
         this.bus.$on("leave", this.handleLeavePeer)
+        this.bus.$on("disconnect", () => this.closeMedia())
     },
     methods: {
         async startVoiceChat(setupData) {
@@ -164,6 +165,9 @@ export default {
                 sdp: connection.localDescription
             }
         },
+        closeMedia() {
+            this.myVoiceStream.getTracks().forEach(track => track.stop())
+        }
     }
 }
 </script>
