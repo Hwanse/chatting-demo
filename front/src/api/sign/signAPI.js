@@ -4,12 +4,12 @@ export default {
     async signIn(id, password) {
         try {
             let signInData = JSON.stringify({userId: id, password: password})
-            const response = await request.instance.post('/api/login', signInData)
+            const response = await request.post('/api/login', signInData)
             const token = response.data.data.token
-
-            window.localStorage.setItem('authToken', token)
-            request.setAuth(token) 
-            return token
+            
+            if (token) {
+                window.localStorage.setItem('authToken', token)
+            }
         } catch(error) {
             console.log(error)
         }
@@ -17,7 +17,7 @@ export default {
     async signUp(id, password) {
         try {
             let signUpData = JSON.stringify({userId: id, password: password})
-            const response = await request.instance.post('/api/signup', signUpData)
+            const response = await request.post('/api/signup', signUpData)
             return response.data.data
         } catch(error) {
             console.log(error)
