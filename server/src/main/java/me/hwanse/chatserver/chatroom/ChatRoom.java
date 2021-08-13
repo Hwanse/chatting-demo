@@ -1,12 +1,10 @@
 package me.hwanse.chatserver.chatroom;
 
 import lombok.*;
+import me.hwanse.chatserver.user.User;
 import org.springframework.web.socket.WebSocketSession;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
+import javax.persistence.*;
 import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
@@ -29,19 +27,20 @@ public class ChatRoom {
 
     private int userCount;
 
+    private String managerId;
+
     private LocalDateTime createdAt;
 
     private LocalDateTime deletedAt;
 
     private boolean use;
 
-
-    public ChatRoom(String title) {
-        this(title, 5);
+    public ChatRoom(String title, String managerId) {
+        this(title, 5, managerId);
     }
 
-    public ChatRoom(String title, int limitUserCount) {
-        this(null, title, limitUserCount, 0, LocalDateTime.now(), null, true);
+    public ChatRoom(String title, int limitUserCount, String managerId) {
+        this(null, title, limitUserCount, 0, managerId, LocalDateTime.now(), null, true);
     }
 
     public void increaseUserCount() {

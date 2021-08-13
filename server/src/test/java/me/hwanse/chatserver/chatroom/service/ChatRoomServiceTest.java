@@ -26,22 +26,24 @@ class ChatRoomServiceTest {
     private ChatRoomRepository chatRoomRepository;
 
     private final String TITLE = "title";
+    private final String USER_ID = "admin";
 
     @Test
     @DisplayName("채팅방을 생성한다")
     public void createChatRoomTest() throws Exception {
         // given
         int limitUserCount = 5;
-        ChatRoom chatRoom = new ChatRoom(TITLE, limitUserCount);
+        ChatRoom chatRoom = new ChatRoom(TITLE, limitUserCount, USER_ID);
         given(chatRoomRepository.save(any())).willReturn(savedChatRoom(chatRoom));
 
         // when
-        ChatRoom saved = chatRoomService.createChatRoom(TITLE, limitUserCount);
+        ChatRoom saved = chatRoomService.createChatRoom(TITLE, limitUserCount, USER_ID);
 
         // then
         assertThat(saved).isNotNull();
         assertThat(saved.getId()).isNotNull();
         assertThat(saved.getTitle()).isEqualTo(chatRoom.getTitle());
+        assertThat(saved.getManagerId()).isEqualTo(USER_ID);
     }
 
     @Test
@@ -51,7 +53,7 @@ class ChatRoomServiceTest {
         List<ChatRoom> chatRooms = new ArrayList<>();
         int count = 10;
         for (int i = 0; i < count; i++) {
-            chatRooms.add(new ChatRoom(TITLE + (i + 1)));
+            chatRooms.add(new ChatRoom(TITLE + (i + 1), USER_ID));
         }
 
         given(chatRoomRepository.findByUseTrueOrderByCreatedAtDesc()).willReturn(chatRooms);
@@ -68,7 +70,7 @@ class ChatRoomServiceTest {
     public void findChatRoomByIdTest() throws Exception {
         // given
         long roomId = 1L;
-        Optional<ChatRoom> chatRoom = Optional.ofNullable(new ChatRoom(TITLE));
+        Optional<ChatRoom> chatRoom = Optional.ofNullable(new ChatRoom(TITLE, USER_ID));
         given(chatRoomRepository.findById(roomId)).willReturn(chatRoom);
 
         // when

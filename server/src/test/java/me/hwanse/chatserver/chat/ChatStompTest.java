@@ -64,7 +64,7 @@ public class ChatStompTest {
     public void setup() {
         WEBSOCKET_FULL_URL = String.format("%s:%d/ws/chat", LOCAL_URL_PREFIX, port);
         completableFuture = new CompletableFuture<>();
-        chatRoomService.createChatRoom("채팅방", 5);
+        chatRoomService.createChatRoom("채팅방", 5, USER_ID);
         userService.userSignUp(USER_ID, USER_ID);
         for (int i = 0; i < 5; i++) {
             userService.userSignUp("user" + (i + 1), "user" + (i + 1));

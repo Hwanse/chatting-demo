@@ -46,14 +46,15 @@ class ChatRoomControllerTest {
     private ObjectMapper objectMapper;
 
     private final String TITLE = "title";
+    private final String USER_ID = "admin";
 
     @Test
     @DisplayName("채팅방 생성 API")
     @WithMockJwtAuthentication
     public void createApiTest() throws Exception {
         // given
-        ChatRoom chatRoom = getChatRoom(1L, TITLE);
-        given(chatRoomService.createChatRoom(chatRoom.getTitle(), chatRoom.getLimitUserCount())).willReturn(chatRoom);
+        ChatRoom chatRoom = getChatRoom(1L, TITLE, USER_ID);
+        given(chatRoomService.createChatRoom(chatRoom.getTitle(), chatRoom.getLimitUserCount(), chatRoom.getManagerId())).willReturn(chatRoom);
 
         CreateChatRoomRequest createRequest = new CreateChatRoomRequest();
         createRequest.setTitle(TITLE);
@@ -71,6 +72,7 @@ class ChatRoomControllerTest {
                 .andExpect(jsonPath("$.data.title").exists())
                 .andExpect(jsonPath("$.data.limitUserCount").isNumber())
                 .andExpect(jsonPath("$.data.userCount").isNumber())
+                .andExpect(jsonPath("$.data.managerId").exists())
                 .andExpect(jsonPath("$.data.createdAt").exists())
                 .andExpect(jsonPath("$.data.deletedAt").isEmpty())
                 .andExpect(jsonPath("$.data.use").value(true))
@@ -85,7 +87,7 @@ class ChatRoomControllerTest {
         List<ChatRoom> chatRooms = new ArrayList<>();
         for (int i = 0; i < 10; i++) {
             long id = i + 1;
-            chatRooms.add(getChatRoom(id, TITLE + id));
+            chatRooms.add(getChatRoom(id, TITLE + id, USER_ID));
         }
 
         given(chatRoomService.findAllChatRooms()).willReturn(chatRooms);
@@ -105,6 +107,7 @@ class ChatRoomControllerTest {
                 .andExpect(jsonPath("$.data[0].createdAt").exists())
                 .andExpect(jsonPath("$.data[0].deletedAt").isEmpty())
                 .andExpect(jsonPath("$.data[0].use").exists())
+                .andExpect(jsonPath("$.data[0].meManager").exists())
                 .andExpect(jsonPath("$.error").isEmpty());
     }
 
@@ -113,7 +116,7 @@ class ChatRoomControllerTest {
     @WithMockJwtAuthentication
     public void getChatRoomApi() throws Exception {
         // given
-        ChatRoom chatRoom = getChatRoom(1L, TITLE);
+        ChatRoom chatRoom = getChatRoom(1L, TITLE, USER_ID);
 
         given(chatRoomService.findChatRoomById(any())).willReturn(chatRoom);
 
@@ -130,16 +133,18 @@ class ChatRoomControllerTest {
                 .andExpect(jsonPath("$.data.createdAt").exists())
                 .andExpect(jsonPath("$.data.deletedAt").isEmpty())
                 .andExpect(jsonPath("$.data.use").value(true))
+                .andExpect(jsonPath("$.data.meManager").exists())
                 .andExpect(jsonPath("$.error").isEmpty());
     }
 
-    private ChatRoom getChatRoom(Long id, String title) {
+    private ChatRoom getChatRoom(Long id, String title, String managerId) {
         return ChatRoom.builder()
                 .id(id)
                 .title(title)
                 .createdAt(LocalDateTime.now())
                 .use(true)
                 .limitUserCount(5)
+                .managerId(managerId)
                 .build();
     }
 
