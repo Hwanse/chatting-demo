@@ -31,7 +31,8 @@ class TagPairRepositoryTest {
     private static Tag tag;
 
     public TagPair setUpData() {
-        chatRoom = chatRoomRepository.save(new ChatRoom("채팅방"));
+        String userId = "admin";
+        chatRoom = chatRoomRepository.save(new ChatRoom("채팅방", userId));
         tag = tagRepository.save(new Tag("태그"));
         return tagPairRepository.save(new TagPair(chatRoom, tag));
     }

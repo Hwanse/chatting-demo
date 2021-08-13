@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import me.hwanse.chatserver.chatroom.ChatRoom;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import java.time.LocalDateTime;
@@ -28,7 +29,9 @@ public class ChatRoomDto {
 
     private boolean use;
 
-    public ChatRoomDto(ChatRoom chatRoom) {
+    private boolean meManager;
+
+    public ChatRoomDto(ChatRoom chatRoom, String userId) {
         this.id = chatRoom.getId();
         this.title = chatRoom.getTitle();
         this.limitUserCount = chatRoom.getLimitUserCount();
@@ -36,5 +39,6 @@ public class ChatRoomDto {
         this.createdAt = chatRoom.getCreatedAt();
         this.deletedAt = chatRoom.getDeletedAt();
         this.use = chatRoom.isUse();
+        this.meManager = StringUtils.equals(chatRoom.getManagerId(), userId);
     }
 }

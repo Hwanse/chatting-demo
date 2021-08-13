@@ -15,8 +15,8 @@ public class ChatRoomService {
 
     private final ChatRoomRepository chatRoomRepository;
 
-    public ChatRoom createChatRoom(String title, int limitUserCount) {
-        return chatRoomRepository.save(new ChatRoom(title, limitUserCount));
+    public ChatRoom createChatRoom(String title, int limitUserCount, String managerId) {
+        return chatRoomRepository.save(new ChatRoom(title, limitUserCount, managerId));
     }
 
     public ChatRoom findChatRoomById(Long id) {
