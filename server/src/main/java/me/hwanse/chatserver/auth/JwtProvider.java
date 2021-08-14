@@ -85,7 +85,9 @@ public class JwtProvider {
 
         if (StringUtils.hasText(userId)) {
             UserDetails userDetails = userDetailsProvider.loadUserByUsername(userId);
-            return Optional.of(new UsernamePasswordAuthenticationToken(userDetails, "", userDetails.getAuthorities()));
+            return Optional.of(
+                new UsernamePasswordAuthenticationToken(userDetails.getUsername(), userDetails.getPassword(), userDetails.getAuthorities())
+            );
         } else {
             return Optional.empty();
         }

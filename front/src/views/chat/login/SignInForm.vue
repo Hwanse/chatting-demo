@@ -3,7 +3,7 @@
         <v-form ref="loginForm">
             <v-text-field v-model="id" label="ID" required></v-text-field>
         
-            <v-text-field v-model="password" label="Password" required></v-text-field>
+            <v-text-field v-model="password" label="Password" type="password" required></v-text-field>
         </v-form>
         <v-btn color="success" class="mr-4" @click="signIn">
             Sign-In

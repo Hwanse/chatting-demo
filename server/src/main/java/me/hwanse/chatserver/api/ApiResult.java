@@ -16,6 +16,9 @@ public class ApiResult<T> {
 
     private ApiError error;
 
+    public static <T> ApiResult<T> OK() {
+        return new ApiResult<>(true, null, null);
+    }
     public static <T> ApiResult<T> OK(T data) {
         return new ApiResult<>(true, data, null);
     }
