@@ -81,6 +81,23 @@ class ChatRoomServiceTest {
         assertThat(findRoom).isEqualTo(chatRoom.get());
     }
 
+    @Test
+    @DisplayName("특정 채팅방을 닫는다")
+    public void disableChatRoomTest() throws Exception {
+        // given
+        long roomId = 1L;
+        Optional<ChatRoom> chatRoom = Optional.ofNullable(new ChatRoom(TITLE, USER_ID));
+        given(chatRoomRepository.findById(roomId)).willReturn(chatRoom);
+
+        // when
+        chatRoomService.disableChatRoom(roomId, USER_ID);
+        ChatRoom room = chatRoom.get();
+
+        // then
+        assertThat(room.isUse()).isFalse();
+        assertThat(room.getDeletedAt()).isNotNull();
+    }
+
     private ChatRoom savedChatRoom(ChatRoom chatRoom) {
         return chatRoom.toBuilder()
                 .id(1L).build();

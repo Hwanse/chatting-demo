@@ -6,6 +6,7 @@ import me.hwanse.chatserver.chatroom.dto.CreateChatRoomRequest;
 import me.hwanse.chatserver.chatroom.service.ChatRoomService;
 import me.hwanse.chatserver.config.WebTestWithSecurityConfig;
 import me.hwanse.chatserver.config.WithMockJwtAuthentication;
+import me.hwanse.chatserver.exception.NotHaveManagerPrivilege;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,9 +27,8 @@ import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.BDDMockito.given;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.mockito.BDDMockito.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 
@@ -112,7 +112,7 @@ class ChatRoomControllerTest {
     }
 
     @Test
-    @DisplayName("채팅방 id로 조회")
+    @DisplayName("채팅방 id로 조회 API")
     @WithMockJwtAuthentication
     public void getChatRoomApi() throws Exception {
         // given
@@ -134,6 +134,25 @@ class ChatRoomControllerTest {
                 .andExpect(jsonPath("$.data.deletedAt").isEmpty())
                 .andExpect(jsonPath("$.data.use").value(true))
                 .andExpect(jsonPath("$.data.meManager").exists())
+                .andExpect(jsonPath("$.error").isEmpty());
+    }
+
+    @Test
+    @DisplayName("특정 채팅방 미사용 처리 API")
+    @WithMockJwtAuthentication
+    public void disableChatRoomApi() throws Exception {
+        // given
+        ChatRoom chatRoom = getChatRoom(1L, TITLE, USER_ID);
+
+        willDoNothing().given(chatRoomService).disableChatRoom(chatRoom.getId(), USER_ID);
+
+        // when
+        ResultActions resultActions = mockMvc.perform(patch("/api/chat-room/{id}", chatRoom.getId()));
+
+        // then
+        resultActions.andDo(print())
+                .andExpect(jsonPath("$.success").value(true))
+                .andExpect(jsonPath("$.data").isEmpty())
                 .andExpect(jsonPath("$.error").isEmpty());
     }
 

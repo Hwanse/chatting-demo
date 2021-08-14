@@ -27,9 +27,6 @@ public class ChatConnectInterceptor implements ChannelInterceptor {
         StompCommand command = stompHeaderAccessor.getCommand();
 
         if (command == StompCommand.CONNECT) {
-            System.out.println("getLogin : " + stompHeaderAccessor.getLogin());
-            System.out.println("get Authorization Header : " + stompHeaderAccessor.getFirstNativeHeader(JwtProvider.AUTHORIZATION_HEADER));
-            System.out.println("get Header : " + stompHeaderAccessor.getNativeHeader(JwtProvider.AUTHORIZATION_HEADER));
         }
 
         return ChannelInterceptor.super.preSend(message, channel);

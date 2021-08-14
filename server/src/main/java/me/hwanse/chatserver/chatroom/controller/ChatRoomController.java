@@ -45,4 +45,10 @@ public class ChatRoomController {
         );
     }
 
+    @PatchMapping("/{id}")
+    public ApiResult disableChatRoom(@PathVariable Long id, @AuthenticationPrincipal String userId) {
+        chatRoomService.disableChatRoom(id, userId);
+        return OK();
+    }
+
 }

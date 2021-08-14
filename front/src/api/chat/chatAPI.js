@@ -25,5 +25,13 @@ export default {
         } catch(error) {
             console.log(error)
         }
+    },
+    async disableChatRoom(roomId) {
+        try {
+            const response = await request.patch(`/api/chat-room/${roomId}`)
+            return response.success
+        } catch (error) {
+            console.log(error)
+        }
     }
 }

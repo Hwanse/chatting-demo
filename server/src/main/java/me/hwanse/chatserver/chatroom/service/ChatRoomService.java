@@ -4,6 +4,8 @@ import lombok.RequiredArgsConstructor;
 import me.hwanse.chatserver.chatroom.ChatRoom;
 import me.hwanse.chatserver.chatroom.repository.ChatRoomRepository;
 import me.hwanse.chatserver.exception.NotFoundException;
+import me.hwanse.chatserver.exception.NotHaveManagerPrivilege;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -29,8 +31,13 @@ public class ChatRoomService {
     }
 
     @Transactional
-    public void disableChatRoom(Long roomId) {
-        chatRoomRepository.findById(roomId).ifPresent(ChatRoom::disable);
+    public void disableChatRoom(Long roomId, String userId) {
+        ChatRoom chatRoom = chatRoomRepository.findById(roomId).orElseThrow(() -> new NotFoundException(ChatRoom.class, roomId));
+        if (StringUtils.equals(userId, chatRoom.getManagerId())) {
+            chatRoom.disable();
+        } else {
+            throw new NotHaveManagerPrivilege(userId);
+        }
     }
 
 }
