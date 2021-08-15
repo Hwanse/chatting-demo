@@ -27,6 +27,8 @@ public class ChatConnectInterceptor implements ChannelInterceptor {
         StompCommand command = stompHeaderAccessor.getCommand();
 
         if (command == StompCommand.CONNECT) {
+            log.info("stomp header headers", stompHeaderAccessor.getMessageHeaders());
+            log.info("stomp header ", stompHeaderAccessor.getHeader("Authorization"));
         }
 
         return ChannelInterceptor.super.preSend(message, channel);
