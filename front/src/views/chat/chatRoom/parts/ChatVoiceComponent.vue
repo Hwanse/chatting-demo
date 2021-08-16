@@ -76,7 +76,7 @@ export default {
                     toId: sessionId,
                     candidate: event.candidate
                 }
-                this.chatSetupData.stompClient.send("/pub/chat/voice/candidate", JSON.stringify(data))
+                this.chatSetupData.stompClient.send("/pub/chat/voice/candidate", JSON.stringify(data), this.getAuthorizationHeader())
             } else {
                 console.log('End of candidates.')
             }
@@ -99,7 +99,7 @@ export default {
                     roomId: this.chatSetupData.roomId,
                     sessionId: sessionId
                 }
-                this.chatSetupData.stompClient.send("/pub/chat/voice/leave", JSON.stringify(leaveMessage))
+                this.chatSetupData.stompClient.send("/pub/chat/voice/leave", JSON.stringify(leaveMessage), this.getAuthorizationHeader())
 
                 let index = this.connections.indexOf(sessionId)
                 if (index > -1) {
@@ -118,14 +118,14 @@ export default {
             await connection.setLocalDescription(offer)
 
             let sdpMessage = this.getSdpMessage(connection, toId)
-            this.chatSetupData.stompClient.send("/pub/chat/voice/offer", JSON.stringify(sdpMessage))
+            this.chatSetupData.stompClient.send("/pub/chat/voice/offer", JSON.stringify(sdpMessage), this.getAuthorizationHeader())
         },
         async createAnswerToSignallingServer(connection, toId) {
             const answer = await connection.createAnswer()    
             await connection.setLocalDescription(answer)
 
             let sdpMessage = this.getSdpMessage(connection, toId)
-            this.chatSetupData.stompClient.send("/pub/chat/voice/offer", JSON.stringify(sdpMessage))
+            this.chatSetupData.stompClient.send("/pub/chat/voice/offer", JSON.stringify(sdpMessage), this.getAuthorizationHeader())
         },
         async getMessageFromSignallingServer(response) {
             let message = JSON.parse(response.body)
@@ -167,6 +167,10 @@ export default {
         },
         closeMedia() {
             this.myVoiceStream.getTracks().forEach(track => track.stop())
+        },
+        getAuthorizationHeader() {
+            const token = window.sessionStorage.getItem("authToken")
+            return {"Authorization": `Bearer ${token}`}
         }
     }
 }
