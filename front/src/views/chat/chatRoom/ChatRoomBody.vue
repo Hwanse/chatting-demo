@@ -47,19 +47,19 @@ export default {
             const token = window.sessionStorage.getItem("authToken")
 
             // 웹 소켓 스펙 특성상 SockJs API를 활용한 헤더를 조작하여 토큰을 넣어줄수 없다. 따라서 쿼리스트링으로 전달 
-            this.websocket = new SockJS(`${location.protocol}//${location.host}/ws/chat?token=${token}`)
+            this.websocket = new SockJS(`${location.protocol}//${location.host}/ws/chat?token=Bearer ${token}`)
             // let options = {debug: false, protocols: Stomp.VERSIONS.supportedProtocols()};
             this.stompClient = Stomp.over(this.websocket)
             
-            this.stompClient.connect({"Authorization": `Bearer ${token}`}, this.onConnected, this.onConnectError)
+            this.stompClient.connect(this.getAuthorizationHeader(), this.onConnected, this.onConnectError)
         },
         async onConnected() {
             await this.bindSessionId()
 
-            this.stompClient.subscribe(`/sub/chat-room/${this.info.id}`, this.receiveJoinMessage)
-            this.stompClient.subscribe(`/user/${this.mySessionId}/sub/chat-room/${this.info.id}/voice`, this.receiveSignallingMessage)
-            this.stompClient.subscribe(`/user/${this.mySessionId}/sub/chat-room/${this.info.id}/monitoring`, this.receiveMonitoringMessage)
-            this.stompClient.subscribe(`/sub/chat-room/${this.info.id}/leave`, this.receiveLeaveMessage)
+            this.stompClient.subscribe(`/sub/chat-room/${this.info.id}`, this.receiveJoinMessage, this.getAuthorizationHeader())
+            this.stompClient.subscribe(`/user/${this.mySessionId}/sub/chat-room/${this.info.id}/voice`, this.receiveSignallingMessage, this.getAuthorizationHeader())
+            this.stompClient.subscribe(`/user/${this.mySessionId}/sub/chat-room/${this.info.id}/monitoring`, this.receiveMonitoringMessage, this.getAuthorizationHeader())
+            this.stompClient.subscribe(`/sub/chat-room/${this.info.id}/leave`, this.receiveLeaveMessage, this.getAuthorizationHeader())
             
             this.bus.$emit("connect", this.chatSetupData())           
             
@@ -92,14 +92,16 @@ export default {
                 messageType: "JOIN",
                 sessionId: this.mySessionId
             } 
-            this.stompClient.send("/pub/chat/join", JSON.stringify(data))
+            this.stompClient.send("/pub/chat/join", JSON.stringify(data), this.getAuthorizationHeader())
+
+            // TODO 메세지 전송시 서버에서 응답이 없을 경우에 대한 예외처리 필요
         },
         sendMonitoringMessage() {
             this.monitoringInterval = setInterval(() => {
                 let data = {
                     roomId: this.info.id
                 }
-                this.stompClient.send("/pub/chat/monitoring", JSON.stringify(data))
+                this.stompClient.send("/pub/chat/monitoring", JSON.stringify(data), this.getAuthorizationHeader())
             }, 2000)
         },
         receiveJoinMessage(response) {
@@ -115,11 +117,15 @@ export default {
         receiveLeaveMessage(response) {
             this.bus.$emit("leave", response)
         },
-        closeEvent(event) {
+        async closeEvent(event) {
             if (event) event.preventDefault()
             clearInterval(this.monitoringInterval)
-            this.stompClient.disconnect()
+            await this.stompClient .disconnect()
             this.websocket.close()
+        },
+        getAuthorizationHeader() {
+            const token = window.sessionStorage.getItem("authToken")
+            return {"Authorization": `Bearer ${token}`}
         }
     },
     components: {

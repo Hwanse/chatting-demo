@@ -53,8 +53,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         if (StringUtils.hasText(headerToken) && headerToken.startsWith(TOKEN_TYPE)) {
             return headerToken.split(" ")[1];
         }
-        if (StringUtils.hasText(queryStringToken)) {
-            return queryStringToken;
+        if (StringUtils.hasText(queryStringToken) && queryStringToken.startsWith(TOKEN_TYPE)) {
+            return queryStringToken.split(" ")[1];
         }
         return "";
     }

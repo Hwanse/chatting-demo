@@ -34,7 +34,7 @@ export default {
             
             this.message = message
             let data = this.getMessageObject(this.message, "TALK")
-            this.chatSetupData.stompClient.send("/pub/chat/text/message", JSON.stringify(data))
+            this.chatSetupData.stompClient.send("/pub/chat/text/message", JSON.stringify(data), this.getAuthorizationHeader())
             this.message = ''
         },
         async handleMessage(response) {
@@ -70,6 +70,10 @@ export default {
             let chatContainer = document.getElementById("messageConatiner")
             chatContainer.scrollTop = chatContainer.scrollHeight
         },
+        getAuthorizationHeader() {
+            const token = window.sessionStorage.getItem("authToken")
+            return {"Authorization": `Bearer ${token}`}
+        }
     },
     components: {
         ChatMessage,
