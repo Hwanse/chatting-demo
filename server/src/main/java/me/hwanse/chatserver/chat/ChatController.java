@@ -34,7 +34,7 @@ public class ChatController {
     private final SimpMessagingTemplate messagingTemplate;
     private final ChatVisitorService chatVisitorService;
 
-    // =========== 채팅방 공통 ==============
+    // =========== 채팅방 공통 ===========
     @MessageMapping("/join")
     public void joinInChat(@Valid ChatMessage chatMessage) {
         messagingTemplate.convertAndSend(getDestination(chatMessage.getRoomId(), JOIN), chatMessage);
@@ -43,17 +43,20 @@ public class ChatController {
     @MessageMapping("/monitoring")
     public void monitoringUserCountInChatRoom(SimpMessageHeaderAccessor headerAccessor, @Valid MonitoringMessage message) {
         message.setUserCount(chatVisitorService.findVisitorsInTheChatRoom(message.getRoomId()).size());
-        messagingTemplate.convertAndSendToUser(headerAccessor.getSessionId(),
-                getDestination(message.getRoomId(), MONITORING), message);
+        messagingTemplate.convertAndSendToUser(
+                headerAccessor.getSessionId(),
+                getDestination(message.getRoomId(), MONITORING),
+                message
+        );
     }
 
-    // =========== 텍스트 채팅 관련 ==============
+    // =========== 텍스트 채팅 관련 ===========
     @MessageMapping("/text/message")
     public void sendMessage(@Valid ChatMessage chatMessage) {
         messagingTemplate.convertAndSend(getDestination(chatMessage.getRoomId(), TALK), chatMessage);
     }
 
-    // =========== 음성 채팅 관련 ==============
+    // =========== 음성 채팅 관련 ===========
     @MessageMapping("/voice/offer")
     public void sendVoiceToPeers(@Valid SdpMessage message) {
         messagingTemplate.convertAndSendToUser(message.getToId(), getDestination(message.getRoomId(), VOICE), message);
