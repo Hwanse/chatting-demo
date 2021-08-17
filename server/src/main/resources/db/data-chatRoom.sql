@@ -4,7 +4,7 @@ VALUES
     ('채팅방2', 'admin', 5, 0, now(), true),
     ('채팅방3', 'admin', 5, 0, now(), true),
     ('채팅방4', 'admin', 5, 0, now(), true),
-    ('채팅방5', 'admin', 5, 0, now(), true),
+    ('채팅방5', 'admin', 5, 5, now(), true),
     ('채팅방6', 'admin', 5, 0, now(), true),
     ('채팅방7', 'admin', 5, 0, now(), true),
     ('채팅방8', 'admin', 5, 0, now(), true),

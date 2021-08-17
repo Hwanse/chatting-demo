@@ -7,7 +7,7 @@
                         {{chatRoom.title}}
                     </v-list-item-title>
                     <v-list-item-subtitle>
-                        현재 인원 : {{chatRoom.userCount}}
+                        {{chatRoom.userCount}} / {{chatRoom.limitUserCount}}
                     </v-list-item-subtitle>
                 </v-list-item-content>
             </v-list-item>
