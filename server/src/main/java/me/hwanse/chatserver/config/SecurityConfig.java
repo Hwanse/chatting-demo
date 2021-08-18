@@ -3,6 +3,7 @@ package me.hwanse.chatserver.config;
 import lombok.RequiredArgsConstructor;
 import me.hwanse.chatserver.auth.*;
 import me.hwanse.chatserver.user.service.UserDetailsProvider;
+import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -45,7 +46,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     @Override
     public void configure(WebSecurity web) throws Exception {
         web.ignoring()
-            .antMatchers("/h2-console/**");
+            .mvcMatchers("/h2-console/**")
+            .mvcMatchers("/docs/index.html");
     }
 
     @Override
