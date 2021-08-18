@@ -13,7 +13,7 @@ public class AuthenticateService {
 
     private final AuthenticationManager authenticationManager;
 
-    public String login(String userId, String password) {
+    public String signIn(String userId, String password) {
         Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(userId, password));
         SecurityContextHolder.getContext().setAuthentication(authentication);
         return String.valueOf(authentication.getDetails());
