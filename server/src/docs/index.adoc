@@ -1,0 +1,53 @@
+= Chat-Server REST API Document
+:doctype: book
+:icons: font
+:source-highlighter: highlightjs
+:toc: left
+:toclevels: 4
+:sectlinks:
+
+= 소개
+
+Chat-Server를 활용하기 위한 API 가이드 문서입니다.
+
+== Domain
+
+|===
+| 환경 | Domain
+
+| 로컬서버
+| `http://localhost:8081/api`
+
+| 개발서버
+|
+
+|===
+
+== 공통
+
+
+== 유저
+
+=== 회원가입
+
+operation::user/signup[snippets='curl-request,http-request,request-headers,request-fields,request-body,http-response,response-fields,response-body']
+
+=== 로그인
+
+operation::user/signin[snippets='curl-request,http-request,request-headers,request-fields,request-body,http-response,response-fields,response-body']
+
+== 채팅방
+
+=== 채팅방 리스트 조회 API
+
+=== 채팅방 정보 조회 API
+
+=== 채팅방 생성 API
+
+=== 채팅방 비활성화 API
+
+== 채팅
+
+=== 테스트 메세지 관련
+
+=== 음성 메세지 관련

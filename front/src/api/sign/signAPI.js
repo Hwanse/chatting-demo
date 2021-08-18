@@ -4,7 +4,7 @@ export default {
     async signIn(id, password) {
         try {
             let signInData = JSON.stringify({userId: id, password: password})
-            const response = await request.post('/api/login', signInData)
+            const response = await request.post('/api/signin', signInData)
             const token = response.data.data.token
             
             if (token) {
