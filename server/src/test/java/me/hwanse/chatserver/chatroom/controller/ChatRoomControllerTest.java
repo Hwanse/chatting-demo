@@ -4,20 +4,31 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import me.hwanse.chatserver.chatroom.ChatRoom;
 import me.hwanse.chatserver.chatroom.dto.CreateChatRoomRequest;
 import me.hwanse.chatserver.chatroom.service.ChatRoomService;
+import me.hwanse.chatserver.config.RestDocsConfig;
 import me.hwanse.chatserver.config.WebTestWithSecurityConfig;
 import me.hwanse.chatserver.config.WithMockJwtAuthentication;
+import me.hwanse.chatserver.document.chatroom.ChatRoomDocumentation;
 import me.hwanse.chatserver.exception.NotHaveManagerPrivilege;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.restdocs.AutoConfigureRestDocs;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
+import org.springframework.restdocs.RestDocumentationContextProvider;
+import org.springframework.restdocs.RestDocumentationExtension;
+import org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.springframework.web.context.WebApplicationContext;
+import org.springframework.web.filter.ShallowEtagHeaderFilter;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -28,12 +39,14 @@ import java.util.Map;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.*;
+import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.documentationConfiguration;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 
-@WebMvcTest(value = ChatRoomController.class, includeFilters = @ComponentScan.Filter(classes = {EnableWebSecurity.class}))
-@Import(WebTestWithSecurityConfig.class)
+@WebMvcTest(value = ChatRoomController.class)
+@Import({WebTestWithSecurityConfig.class, RestDocsConfig.class})
+@AutoConfigureRestDocs
 class ChatRoomControllerTest {
 
     @MockBean
@@ -76,7 +89,8 @@ class ChatRoomControllerTest {
                 .andExpect(jsonPath("$.data.createdAt").exists())
                 .andExpect(jsonPath("$.data.deletedAt").isEmpty())
                 .andExpect(jsonPath("$.data.use").value(true))
-                .andExpect(jsonPath("$.error").isEmpty());
+                .andExpect(jsonPath("$.error").hasJsonPath())
+                .andDo(ChatRoomDocumentation.createChatRoomApiDocument());
     }
 
     @Test
@@ -107,8 +121,10 @@ class ChatRoomControllerTest {
                 .andExpect(jsonPath("$.data[0].createdAt").exists())
                 .andExpect(jsonPath("$.data[0].deletedAt").isEmpty())
                 .andExpect(jsonPath("$.data[0].use").exists())
+                .andExpect(jsonPath("$.data[0].managerId").exists())
                 .andExpect(jsonPath("$.data[0].meManager").exists())
-                .andExpect(jsonPath("$.error").isEmpty());
+                .andExpect(jsonPath("$.error").hasJsonPath())
+                .andDo(ChatRoomDocumentation.getAllChatRoomsApiDocument());
     }
 
     @Test
@@ -121,7 +137,9 @@ class ChatRoomControllerTest {
         given(chatRoomService.findChatRoomById(any())).willReturn(chatRoom);
 
         // when
-        ResultActions resultActions = mockMvc.perform(get("/api/chat-room/{id}", chatRoom.getId()));
+        ResultActions resultActions = mockMvc.perform(
+                RestDocumentationRequestBuilders.get("/api/chat-room/{id}", chatRoom.getId())
+            );
 
         // then
         resultActions.andDo(print())
@@ -133,8 +151,10 @@ class ChatRoomControllerTest {
                 .andExpect(jsonPath("$.data.createdAt").exists())
                 .andExpect(jsonPath("$.data.deletedAt").isEmpty())
                 .andExpect(jsonPath("$.data.use").value(true))
+                .andExpect(jsonPath("$.data.managerId").exists())
                 .andExpect(jsonPath("$.data.meManager").exists())
-                .andExpect(jsonPath("$.error").isEmpty());
+                .andExpect(jsonPath("$.error").hasJsonPath())
+                .andDo(ChatRoomDocumentation.getChatRoomApiDocument());
     }
 
     @Test
@@ -147,13 +167,16 @@ class ChatRoomControllerTest {
         willDoNothing().given(chatRoomService).disableChatRoom(chatRoom.getId(), USER_ID);
 
         // when
-        ResultActions resultActions = mockMvc.perform(patch("/api/chat-room/{id}", chatRoom.getId()));
+        ResultActions resultActions = mockMvc.perform(
+                RestDocumentationRequestBuilders.patch("/api/chat-room/{id}", chatRoom.getId())
+            );
 
         // then
         resultActions.andDo(print())
                 .andExpect(jsonPath("$.success").value(true))
-                .andExpect(jsonPath("$.data").isEmpty())
-                .andExpect(jsonPath("$.error").isEmpty());
+                .andExpect(jsonPath("$.data").hasJsonPath())
+                .andExpect(jsonPath("$.error").hasJsonPath())
+                .andDo(ChatRoomDocumentation.disableChatRoomApiDocument());
     }
 
     private ChatRoom getChatRoom(Long id, String title, String managerId) {

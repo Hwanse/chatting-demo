@@ -31,6 +31,8 @@ public class ChatRoomDto {
 
     private boolean use;
 
+    private String managerId;
+
     private boolean meManager;
 
     public ChatRoomDto(ChatRoom chatRoom, String userId) {
@@ -41,6 +43,7 @@ public class ChatRoomDto {
         this.createdAt = chatRoom.getCreatedAt();
         this.deletedAt = chatRoom.getDeletedAt();
         this.use = chatRoom.isUse();
+        this.managerId = chatRoom.getManagerId();
         this.meManager = StringUtils.equals(chatRoom.getManagerId(), userId);
     }
 }
