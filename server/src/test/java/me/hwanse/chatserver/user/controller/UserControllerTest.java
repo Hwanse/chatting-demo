@@ -17,6 +17,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.restdocs.AutoConfigureRestDocs;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.ComponentScan;
@@ -44,9 +46,10 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @WebMvcTest(value = UserController.class)
 @Import({WebTestWithSecurityConfig.class, RestDocsConfig.class})
-@ExtendWith(RestDocumentationExtension.class)
+@AutoConfigureRestDocs
 class UserControllerTest {
 
+    @Autowired
     private MockMvc mockMvc;
 
     @Autowired
@@ -54,18 +57,6 @@ class UserControllerTest {
 
     @MockBean
     private UserService userService;
-
-    private PasswordEncoder passwordEncoder;
-
-    @BeforeEach
-    public void setup(WebApplicationContext webApplicationContext,
-                      RestDocumentationContextProvider restDocumentation) {
-        passwordEncoder = new BCryptPasswordEncoder();
-        mockMvc = MockMvcBuilders.webAppContextSetup(webApplicationContext)
-                .addFilter(new ShallowEtagHeaderFilter())
-                .apply(documentationConfiguration(restDocumentation))
-                .build();
-    }
 
     @Test
     @DisplayName("회원 가입 API")
@@ -77,7 +68,7 @@ class UserControllerTest {
         signUpRequest.setUserId(userId);
         signUpRequest.setPassword(password);
 
-        given(userService.userSignUp(userId, password)).willReturn(joinedUser(userId, password));
+        given(userService.userSignUp(userId, password)).willReturn(joinedUser(userId));
 
         // when
         ResultActions resultActions =
@@ -98,11 +89,10 @@ class UserControllerTest {
         ;
     }
 
-    private User joinedUser(String userId, String password) {
+    private User joinedUser(String userId) {
         return User.builder()
                 .id(1L)
                 .userId(userId)
-                .password(passwordEncoder.encode(password))
                 .createdAt(LocalDateTime.now())
                 .updatedAt(LocalDateTime.now())
                 .use(true)
