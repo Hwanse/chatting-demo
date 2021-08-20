@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.Valid;
 
-import static me.hwanse.chatserver.api.ApiResult.OK;
+import static me.hwanse.chatserver.api.ApiResult.Response;
 
 @RestController
 @RequiredArgsConstructor
@@ -22,7 +22,7 @@ public class AuthenticateController {
     @PostMapping("/api/signin")
     public ApiResult authenticate(@RequestBody @Valid SignInRequest signInRequest) {
         String jwt = authenticateService.signIn(signInRequest.getUserId(), signInRequest.getPassword());
-        return OK(
+        return Response(
             new AuthTokenResponse(jwt)
         );
     }
