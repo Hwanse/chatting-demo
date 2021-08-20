@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.ToString;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 
 @Getter
 @ToString
@@ -16,11 +17,11 @@ public class ApiResult<T> {
 
     private ApiError error;
 
-    public static <T> ApiResult<T> OK() {
+    public static <T> ApiResult<T> Response() {
         return new ApiResult<>(true, null, null);
     }
 
-    public static <T> ApiResult<T> OK(T data) {
+    public static <T> ApiResult<T> Response(T data) {
         return new ApiResult<>(true, data, null);
     }
 

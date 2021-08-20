@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.Valid;
 
-import static me.hwanse.chatserver.api.ApiResult.OK;
+import static me.hwanse.chatserver.api.ApiResult.Response;
 
 @RestController
 @RequiredArgsConstructor
@@ -25,7 +25,7 @@ public class UserController {
     @PostMapping("/signup")
     public ApiResult signUp(@RequestBody @Valid SignUpRequest signUpRequest) {
         User joinUser = userService.userSignUp(signUpRequest.getUserId(), signUpRequest.getPassword());
-        return OK(
+        return Response(
             new UserDto(joinUser)
         );
     }

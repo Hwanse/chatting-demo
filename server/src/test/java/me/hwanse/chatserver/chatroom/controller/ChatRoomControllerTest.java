@@ -19,6 +19,8 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Import;
+import org.springframework.hateoas.MediaTypes;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.restdocs.RestDocumentationContextProvider;
 import org.springframework.restdocs.RestDocumentationExtension;
@@ -42,7 +44,7 @@ import static org.mockito.BDDMockito.*;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.documentationConfiguration;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @WebMvcTest(value = ChatRoomController.class)
 @Import({WebTestWithSecurityConfig.class, RestDocsConfig.class})
@@ -58,6 +60,7 @@ class ChatRoomControllerTest {
     @Autowired
     private ObjectMapper objectMapper;
 
+    private final String HAL_JSON_UTF8 = MediaTypes.HAL_JSON_VALUE + ";charset=UTF-8";
     private final String TITLE = "title";
     private final String USER_ID = "admin";
 
@@ -75,11 +78,15 @@ class ChatRoomControllerTest {
 
         // when
         ResultActions resultActions = mockMvc.perform(post("/api/chat-room")
-                .contentType(MediaType.APPLICATION_JSON)
+                .contentType(MediaType.APPLICATION_JSON_VALUE)
+                .accept(MediaTypes.HAL_JSON)
                 .content(objectMapper.writeValueAsString(createRequest)));
 
         // then
         resultActions.andDo(print())
+                .andExpect(status().isCreated())
+                .andExpect(header().exists(HttpHeaders.LOCATION))
+                .andExpect(header().string(HttpHeaders.CONTENT_TYPE, HAL_JSON_UTF8))
                 .andExpect(jsonPath("$.success").value(true))
                 .andExpect(jsonPath("$.data.id").exists())
                 .andExpect(jsonPath("$.data.title").exists())
@@ -89,6 +96,7 @@ class ChatRoomControllerTest {
                 .andExpect(jsonPath("$.data.createdAt").exists())
                 .andExpect(jsonPath("$.data.deletedAt").isEmpty())
                 .andExpect(jsonPath("$.data.use").value(true))
+                .andExpect(jsonPath("$.data.links").exists())
                 .andExpect(jsonPath("$.error").hasJsonPath())
                 .andDo(ChatRoomDocumentation.createChatRoomApiDocument());
     }
@@ -107,22 +115,28 @@ class ChatRoomControllerTest {
         given(chatRoomService.findAllChatRooms()).willReturn(chatRooms);
 
         // when
-        ResultActions resultActions = mockMvc.perform(get("/api/chat-room"));
+        ResultActions resultActions = mockMvc.perform(get("/api/chat-room")
+                                            .accept(MediaTypes.HAL_JSON)
+                                            .contentType(MediaType.APPLICATION_JSON));
 
         // then
         resultActions.andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(header().string(HttpHeaders.CONTENT_TYPE, HAL_JSON_UTF8))
                 .andExpect(jsonPath("$.success").value(true))
-                .andExpect(jsonPath("$.data").isArray())
-                .andExpect(jsonPath("$.data[0]").isMap())
-                .andExpect(jsonPath("$.data[0].id").exists())
-                .andExpect(jsonPath("$.data[0].title").exists())
-                .andExpect(jsonPath("$.data[0].limitUserCount").exists())
-                .andExpect(jsonPath("$.data[0].userCount").exists())
-                .andExpect(jsonPath("$.data[0].createdAt").exists())
-                .andExpect(jsonPath("$.data[0].deletedAt").isEmpty())
-                .andExpect(jsonPath("$.data[0].use").exists())
-                .andExpect(jsonPath("$.data[0].managerId").exists())
-                .andExpect(jsonPath("$.data[0].meManager").exists())
+                .andExpect(jsonPath("$.data").isMap())
+                .andExpect(jsonPath("$.data.content").isArray())
+                .andExpect(jsonPath("$.data.content[0].id").exists())
+                .andExpect(jsonPath("$.data.content[0].title").exists())
+                .andExpect(jsonPath("$.data.content[0].limitUserCount").exists())
+                .andExpect(jsonPath("$.data.content[0].userCount").exists())
+                .andExpect(jsonPath("$.data.content[0].createdAt").exists())
+                .andExpect(jsonPath("$.data.content[0].deletedAt").isEmpty())
+                .andExpect(jsonPath("$.data.content[0].use").exists())
+                .andExpect(jsonPath("$.data.content[0].managerId").exists())
+                .andExpect(jsonPath("$.data.content[0].meManager").exists())
+                .andExpect(jsonPath("$.data.content[0].links").exists())
+                .andExpect(jsonPath("$.data.links").exists())
                 .andExpect(jsonPath("$.error").hasJsonPath())
                 .andDo(ChatRoomDocumentation.getAllChatRoomsApiDocument());
     }
@@ -139,10 +153,13 @@ class ChatRoomControllerTest {
         // when
         ResultActions resultActions = mockMvc.perform(
                 RestDocumentationRequestBuilders.get("/api/chat-room/{id}", chatRoom.getId())
-            );
+                        .accept(MediaTypes.HAL_JSON)
+                        .contentType(MediaType.APPLICATION_JSON));
 
         // then
         resultActions.andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(header().string(HttpHeaders.CONTENT_TYPE, HAL_JSON_UTF8))
                 .andExpect(jsonPath("$.success").value(true))
                 .andExpect(jsonPath("$.data.id").exists())
                 .andExpect(jsonPath("$.data.title").exists())
@@ -153,6 +170,7 @@ class ChatRoomControllerTest {
                 .andExpect(jsonPath("$.data.use").value(true))
                 .andExpect(jsonPath("$.data.managerId").exists())
                 .andExpect(jsonPath("$.data.meManager").exists())
+                .andExpect(jsonPath("$.data.links").exists())
                 .andExpect(jsonPath("$.error").hasJsonPath())
                 .andDo(ChatRoomDocumentation.getChatRoomApiDocument());
     }
@@ -169,12 +187,16 @@ class ChatRoomControllerTest {
         // when
         ResultActions resultActions = mockMvc.perform(
                 RestDocumentationRequestBuilders.patch("/api/chat-room/{id}", chatRoom.getId())
-            );
+                        .accept(MediaTypes.HAL_JSON)
+                        .contentType(MediaType.APPLICATION_JSON));
 
         // then
         resultActions.andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(header().string(HttpHeaders.CONTENT_TYPE, HAL_JSON_UTF8))
                 .andExpect(jsonPath("$.success").value(true))
-                .andExpect(jsonPath("$.data").hasJsonPath())
+                .andExpect(jsonPath("$.data").exists())
+                .andExpect(jsonPath("$.data.links").exists())
                 .andExpect(jsonPath("$.error").hasJsonPath())
                 .andDo(ChatRoomDocumentation.disableChatRoomApiDocument());
     }
