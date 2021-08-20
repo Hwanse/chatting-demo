@@ -47,10 +47,10 @@ public class ChatRoomController {
     public ResponseEntity getAllChatRooms(@AuthenticationPrincipal String userId) {
         List<ChatRoomDto> chatRooms = chatRoomService.findAllChatRooms().stream()
                 .map(chatRoom -> new ChatRoomDto(chatRoom, userId)).collect(Collectors.toList());
+        CollectionModel<EntityModel<ChatRoomDto>> collectionModel = converter.toCollectionModel(chatRooms);
+
         return ResponseEntity
-                .ok(
-                        Response(converter.toCollectionModel(chatRooms))
-                );
+                .ok(Response(collectionModel));
     }
 
     @GetMapping("/{id}")
@@ -67,11 +67,13 @@ public class ChatRoomController {
     }
 
     @PatchMapping("/{id}")
-    public ApiResult disableChatRoom(@PathVariable Long id, @AuthenticationPrincipal String userId) {
+    public ResponseEntity disableChatRoom(@PathVariable Long id, @AuthenticationPrincipal String userId) {
         chatRoomService.disableChatRoom(id, userId);
         HashMap<String, Link> responseDataMap = new HashMap<>();
         responseDataMap.put("links", Link.of("/docs/index.html#chatroom-disable").withRel("profile"));
-        return Response(responseDataMap);
+
+        return ResponseEntity
+                .ok(Response(responseDataMap));
     }
 
 }
