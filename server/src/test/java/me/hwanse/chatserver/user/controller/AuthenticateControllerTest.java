@@ -17,6 +17,8 @@ import org.springframework.boot.test.autoconfigure.restdocs.AutoConfigureRestDoc
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
+import org.springframework.hateoas.MediaTypes;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
@@ -29,7 +31,7 @@ import java.util.Map;
 import static org.mockito.BDDMockito.given;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @WebMvcTest(value = AuthenticateController.class)
 @Import({WebTestWithSecurityConfig.class, RestDocsConfig.class})
@@ -44,6 +46,8 @@ class AuthenticateControllerTest {
 
     @MockBean
     private AuthenticateService authenticateService;
+
+    private final String HAL_JSON_UTF8 = MediaTypes.HAL_JSON_VALUE + ";charset=UTF-8";
 
     @Test
     @DisplayName("유저 인증 토큰 발급 API")
@@ -60,11 +64,14 @@ class AuthenticateControllerTest {
 
         // when
         ResultActions resultActions = mockMvc.perform(post("/api/signin")
+                                                .accept(MediaTypes.HAL_JSON)
                                                 .contentType(MediaType.APPLICATION_JSON)
                                                 .content(objectMapper.writeValueAsString(signInRequest)));
 
         // then
         resultActions.andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(header().string(HttpHeaders.CONTENT_TYPE, HAL_JSON_UTF8))
                 .andExpect(jsonPath("$.success").value(true))
                 .andExpect(jsonPath("$.data").isMap())
                 .andExpect(jsonPath("$.data.token").value(token))
