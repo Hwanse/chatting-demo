@@ -30,6 +30,8 @@ public class UserDocumentation {
                         fieldWithPath("data.createdAt").description("회원가입 날짜"),
                         fieldWithPath("data.updatedAt").description("회원수정 날짜(default - 최초에는 회원 가입 날짜)"),
                         fieldWithPath("data.use").description("회원의 사용 여부"),
+                        fieldWithPath("data.links").optional().type(JsonFieldType.ARRAY).description("서버 인증 토큰 발급 링크, profile 링크의 모음"),
+                        fieldWithPath("data.links[].*").ignored(),
                         fieldWithPath("error").optional().type(JsonFieldType.OBJECT).description("api 에러 내용(에러가 없을경우 null)")
                     )
                 );
@@ -48,6 +50,8 @@ public class UserDocumentation {
                         fieldWithPath("success").description("api 요청결과 성공 여부"),
                         fieldWithPath("data").description("api 응답 데이터 본문"),
                         fieldWithPath("data.token").description("인증된 사용자의 Token 값"),
+                        fieldWithPath("data.links").optional().type(JsonFieldType.ARRAY).description("인증토큰 발급 api profile 링크"),
+                        fieldWithPath("data.links[].*").ignored(),
                         fieldWithPath("error").optional().type(JsonFieldType.OBJECT).description("api 에러 내용(에러가 없을경우 null)")
                     )
                 );

@@ -5,6 +5,7 @@
 :toclevels: 4
 :sectlinks:
 
+[[user-signup]]
 === 회원가입
 
 Request
@@ -17,6 +18,7 @@ Response
 include::{snippets}/user/signup/response-fields.adoc[]
 include::{snippets}/user/signup/http-response.adoc[]
 
+[[user-authenticate]]
 === 로그인
 
 Request
