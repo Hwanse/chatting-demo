@@ -29,7 +29,7 @@ public class AuthenticateController {
     public ResponseEntity authenticate(@RequestBody @Valid SignInRequest signInRequest) {
         String jwt = authenticateService.signIn(signInRequest.getUserId(), signInRequest.getPassword());
         EntityModel<AuthTokenResponse> model = EntityModel.of(new AuthTokenResponse(jwt));
-        model.add(Link.of("/docs/index.html#user-authenticate"));
+        model.add(Link.of("/docs/index.html#user-authenticate").withRel("profile"));
         return ResponseEntity
                 .ok(Response(model));
     }

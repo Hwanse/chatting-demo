@@ -75,6 +75,7 @@ class AuthenticateControllerTest {
                 .andExpect(jsonPath("$.success").value(true))
                 .andExpect(jsonPath("$.data").isMap())
                 .andExpect(jsonPath("$.data.token").value(token))
+                .andExpect(jsonPath("$.data.links").exists())
                 .andExpect(jsonPath("$.error").hasJsonPath())
                 .andDo(UserDocumentation.signInApiDocument());
     }
