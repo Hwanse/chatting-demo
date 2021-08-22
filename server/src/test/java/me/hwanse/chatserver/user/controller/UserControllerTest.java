@@ -91,6 +91,7 @@ class UserControllerTest {
                 .andExpect(jsonPath("$.data.createdAt").exists())
                 .andExpect(jsonPath("$.data.updatedAt").exists())
                 .andExpect(jsonPath("$.data.use").value(true))
+                .andExpect(jsonPath("$.data.links").exists())
                 .andExpect(jsonPath("$.error").hasJsonPath())
                 .andDo(UserDocumentation.signUpApiDocument())
         ;

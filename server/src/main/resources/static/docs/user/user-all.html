@@ -442,14 +442,14 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
 <ul class="sectlevel2">
-<li><a href="#_회원가입">회원가입</a></li>
-<li><a href="#_로그인">로그인</a></li>
+<li><a href="#user-signup">회원가입</a></li>
+<li><a href="#user-authenticate">로그인</a></li>
 </ul>
 </div>
 </div>
 <div id="content">
 <div class="sect2">
-<h3 id="_회원가입"><a class="link" href="#_회원가입">회원가입</a></h3>
+<h3 id="user-signup"><a class="link" href="#user-signup">회원가입</a></h3>
 <div class="paragraph">
 <p>Request</p>
 </div>
@@ -483,6 +483,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div class="content">
 <pre class="highlightjs highlight nowrap"><code data-lang="http" class="language-http hljs">POST /api/signup HTTP/1.1
 Content-Type: application/json;charset=UTF-8
+Accept: application/hal+json
 Content-Length: 47
 Host: localhost
 
@@ -545,6 +546,11 @@ Host: localhost
 <td class="tableblock halign-left valign-top"><p class="tableblock">회원의 사용 여부</p></td>
 </tr>
 <tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>data.links</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Array</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">서버 인증 토큰 발급 링크, profile 링크의 모음</p></td>
+</tr>
+<tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>error</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>Object</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">api 에러 내용(에러가 없을경우 null)</p></td>
@@ -554,22 +560,29 @@ Host: localhost
 <div class="listingblock">
 <div class="content">
 <pre class="highlightjs highlight nowrap"><code data-lang="http" class="language-http hljs">HTTP/1.1 200 OK
-Content-Type: application/json;charset=UTF-8
+Content-Type: application/hal+json;charset=UTF-8
 X-Content-Type-Options: nosniff
 X-XSS-Protection: 1; mode=block
 Cache-Control: no-cache, no-store, max-age=0, must-revalidate
 Pragma: no-cache
 Expires: 0
-Content-Length: 203
+Content-Length: 390
 
 {
   "success" : true,
   "data" : {
     "id" : 1,
     "userId" : "admin",
-    "createdAt" : "2021-08-19T23:21:15.486",
-    "updatedAt" : "2021-08-19T23:21:15.486",
-    "use" : true
+    "createdAt" : "2021-08-22T15:29:06.483",
+    "updatedAt" : "2021-08-22T15:29:06.483",
+    "use" : true,
+    "links" : [ {
+      "rel" : "authenticate",
+      "href" : "http://localhost:8080/api/signin"
+    }, {
+      "rel" : "profile",
+      "href" : "/docs/index.html#user-signup"
+    } ]
   },
   "error" : null
 }</code></pre>
@@ -577,7 +590,7 @@ Content-Length: 203
 </div>
 </div>
 <div class="sect2">
-<h3 id="_로그인"><a class="link" href="#_로그인">로그인</a></h3>
+<h3 id="user-authenticate"><a class="link" href="#user-authenticate">로그인</a></h3>
 <div class="paragraph">
 <p>Request</p>
 </div>
@@ -611,6 +624,7 @@ Content-Length: 203
 <div class="content">
 <pre class="highlightjs highlight nowrap"><code data-lang="http" class="language-http hljs">POST /api/signin HTTP/1.1
 Content-Type: application/json;charset=UTF-8
+Accept: application/hal+json
 Content-Length: 47
 Host: localhost:8080
 
@@ -653,6 +667,11 @@ Host: localhost:8080
 <td class="tableblock halign-left valign-top"><p class="tableblock">인증된 사용자의 Token 값</p></td>
 </tr>
 <tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>data.links</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Array</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">인증토큰 발급 api profile 링크</p></td>
+</tr>
+<tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>error</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>Object</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">api 에러 내용(에러가 없을경우 null)</p></td>
@@ -662,18 +681,22 @@ Host: localhost:8080
 <div class="listingblock">
 <div class="content">
 <pre class="highlightjs highlight nowrap"><code data-lang="http" class="language-http hljs">HTTP/1.1 200 OK
-Content-Type: application/json;charset=UTF-8
+Content-Type: application/hal+json;charset=UTF-8
 X-Content-Type-Options: nosniff
 X-XSS-Protection: 1; mode=block
 Cache-Control: no-cache, no-store, max-age=0, must-revalidate
 Pragma: no-cache
 Expires: 0
-Content-Length: 203
+Content-Length: 307
 
 {
   "success" : true,
   "data" : {
-    "token" : "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c2VySWQiOiJhZG1pbiIsImV4cCI6MTYyOTM4NjQ3Nn0.d1TirSE3abiDzwrE3CTehdFxw9i4U_OMSMBgzfBIqaE"
+    "token" : "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c2VySWQiOiJhZG1pbiIsImV4cCI6MTYyOTYxNzM0N30.esumFPqB3tOnMDDgia29IWOtIBHUCG-Q-gbm57wdabM",
+    "links" : [ {
+      "rel" : "profile",
+      "href" : "/docs/index.html#user-authenticate"
+    } ]
   },
   "error" : null
 }</code></pre>
@@ -684,7 +707,7 @@ Content-Length: 203
 <div id="footer">
 <div id="footer-text">
 Version 0.0.1-SNAPSHOT<br>
-Last updated 2021-08-19 23:03:47 +0900
+Last updated 2021-08-21 20:01:38 +0900
 </div>
 </div>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.15.6/styles/github.min.css">
