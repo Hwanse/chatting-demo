@@ -1,0 +1,35 @@
+server:
+  port: 8081
+
+spring:
+  application:
+    name: chat-server
+
+  datasource:
+    driver-class-name: org.h2.Driver
+    url: jdbc:h2:mem:chat-server
+    username: sa
+    password:
+
+  sql:
+    init.data-locations: classpath:db/*
+
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    properties:
+      hibernate:
+        format_sql: true
+        default_batch_fetch_size: 100
+    defer-datasource-initialization: true
+
+  h2:
+    console:
+      enabled: true
+
+jwt:
+  token:
+    header: Authorization
+    issuer: ${spring.application.name}
+    secret: aHdhbnNlLXNwcmluZy1zZWN1cml0eS1qd3QtYXV0aC1zZXJ2ZXItc2VjcmV0LWtleQo=
+    expiration: 3600

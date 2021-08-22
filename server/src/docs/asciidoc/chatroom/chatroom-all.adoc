@@ -1,0 +1,56 @@
+:doctype: book
+:icons: font
+:source-highlighter: highlightjs
+:toc: left
+:toclevels: 4
+:sectlinks:
+
+[[chatroom-create]]
+=== 채팅방 생성
+
+Request
+
+include::{snippets}/chatroom/create/request-fields.adoc[]
+include::{snippets}/chatroom/create/http-request.adoc[]
+
+Response
+
+include::{snippets}/chatroom/create/response-fields.adoc[]
+include::{snippets}/chatroom/create/http-response.adoc[]
+
+[[chatroom-list]]
+=== 채팅방 리스트 조회
+
+Request
+
+include::{snippets}/chatroom/list/http-request.adoc[]
+
+Response
+
+include::{snippets}/chatroom/list/response-fields.adoc[]
+include::{snippets}/chatroom/list/http-response.adoc[]
+
+[[chatroom-info]]
+=== 채팅방 정보 조회
+
+Request
+
+include::{snippets}/chatroom/info/path-parameters.adoc[]
+include::{snippets}/chatroom/info/http-request.adoc[]
+
+Response
+
+include::{snippets}/chatroom/info/response-fields.adoc[]
+include::{snippets}/chatroom/info/http-response.adoc[]
+
+[[chatroom-disable]]
+=== 채팅방 비활성화
+
+Request
+
+include::{snippets}/chatroom/disable/path-parameters.adoc[]
+include::{snippets}/chatroom/disable/http-request.adoc[]
+
+Response
+
+include::{snippets}/chatroom/disable/http-response.adoc[]

@@ -1,0 +1,32 @@
+:doctype: book
+:icons: font
+:source-highlighter: highlightjs
+:toc: left
+:toclevels: 4
+:sectlinks:
+
+[[user-signup]]
+=== 회원가입
+
+Request
+
+include::{snippets}/user/signup/request-fields.adoc[]
+include::{snippets}/user/signup/http-request.adoc[]
+
+Response
+
+include::{snippets}/user/signup/response-fields.adoc[]
+include::{snippets}/user/signup/http-response.adoc[]
+
+[[user-authenticate]]
+=== 로그인
+
+Request
+
+include::{snippets}/user/signin/request-fields.adoc[]
+include::{snippets}/user/signin/http-request.adoc[]
+
+Response
+
+include::{snippets}/user/signin/response-fields.adoc[]
+include::{snippets}/user/signin/http-response.adoc[]

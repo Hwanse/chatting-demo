@@ -1,0 +1,30 @@
+server:
+  servlet:
+    # mockMvc response 출력 시 한글이 깨지는 현상을 다음과 같은 설정으로 해결
+    encoding:
+      charset: UTF-8
+      force-response: true
+
+spring:
+
+  datasource:
+    driver-class-name: org.h2.Driver
+    url: jdbc:h2:mem:chat-server-test
+    username: sa
+    password:
+  sql:
+    init:
+      mode: never
+
+  jpa:
+    properties:
+      hibernate:
+        format_sql: true
+        default_batch_fetch_size: 100
+
+jwt:
+  token:
+    header: Authorization
+    issuer: ${spring.application.name}
+    secret: aHdhbnNlLXNwcmluZy1zZWN1cml0eS1qd3QtYXV0aC1zZXJ2ZXItc2VjcmV0LWtleQo=
+    expiration: 3600

@@ -1,0 +1,37 @@
+:doctype: book
+:icons: font
+:source-highlighter: highlightjs
+:toc: left
+:toclevels: 4
+:sectlinks:
+:docRootPath: {docdir}/src/docs/asciidoc
+
+= Chat-Server API Document
+
+== 소개
+
+Chat-Server를 활용하기 위한 API 가이드 문서입니다.
+
+== Domain
+
+|===
+| 환경 | Domain
+
+| 로컬서버
+| `http://localhost:8081/api`
+
+| 개발서버
+|
+
+|===
+
+== 공통
+
+
+== 유저
+
+include::{docRootPath}/user/user-all.adoc[]
+
+== 채팅방
+
+include::{docRootPath}/chatroom/chatroom-all.adoc[]
