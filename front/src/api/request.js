@@ -1,6 +1,5 @@
 import axios from "axios"
 
-
 const request = axios.create({
     baseURL: `${location.protocol}//${location.host}`,
     headers: {
@@ -15,12 +14,31 @@ const request = axios.create({
  * 문제가 있었다. 따라서 아래와 같이 axios API request 시 인터샙터를 걸어
  * localStorage에 저장된 토큰 값을 꺼내 셋팅하도록 변경 
  */
-request.interceptors.request.use(config => {
-    const token = window.sessionStorage.getItem('authToken')
-    if (token) {
-        config.headers.Authorization = `Bearer ${token}`
+request.interceptors.request.use(
+    async (config) => {
+        const token = window.sessionStorage.getItem('authToken')
+        if (token) {
+            config.headers.Authorization = `Bearer ${token}`
+        }
+        return config
+    },
+    error => Promise.reject(error)
+)
+
+
+request.interceptors.response.use(
+    response => {
+        return response
+    }, 
+    async (error) => {        
+        if (error.response.status === 401) {
+            alert("로그인이 만료되었습니다. 로그인을 다시 시도해주세요.")
+            window.sessionStorage.setItem("authRequire", true)
+            location.href = "/"
+        }
+
+        return Promise.reject(error)
     }
-    return config
-})
+)
 
 export default request

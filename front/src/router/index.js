@@ -8,8 +8,15 @@ import ChatRoomView from "@/views/chat/chatRoom/ChatRoomView.vue"
 Vue.use(VueRouter);
 
 const requireAuth = () => (to, from, next) => {
-    const token = window.localStorage.getItem("authToken")
-    token ? next() : next('/')
+    const token = window.sessionStorage.getItem("authToken")
+    const authRequire = !window.sessionStorage.getItem("authRequire") ? true : window.sessionStorage.getItem("authRequire")
+    
+    if (!token && authRequire) {
+      alert("로그인이 필요합니다.")
+      next("/")
+    } else {
+      next()
+    }
 }
 
 const routes = [
