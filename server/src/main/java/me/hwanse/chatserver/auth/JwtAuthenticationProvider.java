@@ -36,12 +36,12 @@ public class JwtAuthenticationProvider implements AuthenticationProvider {
             throw new BadCredentialsException("user password not matched");
         }
 
-        UsernamePasswordAuthenticationToken token =
+        UsernamePasswordAuthenticationToken authenticatedToken =
                 new UsernamePasswordAuthenticationToken(userId, password, userDetails.getAuthorities());
         String jwt = jwtProvider.createToken(userId);
-        token.setDetails(jwt);
+        authenticatedToken.setDetails(jwt);
 
-        return token;
+        return authenticatedToken;
     }
 
     @Override

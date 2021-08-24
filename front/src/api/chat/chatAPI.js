@@ -3,7 +3,7 @@ import request from "../request"
 export default {
     async getChatList() {
         try {
-            const response = await request.get('/api/chat-room')
+            const response = await request.get("/api/chat-room")
             return response.data.data.content
         } catch(error) {
             console.log(error)
