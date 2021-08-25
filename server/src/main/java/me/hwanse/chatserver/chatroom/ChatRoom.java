@@ -1,13 +1,9 @@
 package me.hwanse.chatserver.chatroom;
 
 import lombok.*;
-import me.hwanse.chatserver.user.User;
-import org.springframework.web.socket.WebSocketSession;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
-import java.util.HashSet;
-import java.util.Set;
 
 @Entity
 @Getter
@@ -33,7 +29,8 @@ public class ChatRoom {
 
     private LocalDateTime deletedAt;
 
-    private boolean use;
+    @Column(name = "use_flag")
+    private boolean usable;
 
     public ChatRoom(String title, String managerId) {
         this(title, 5, managerId);
@@ -56,7 +53,7 @@ public class ChatRoom {
 
     public void disable() {
         this.deletedAt = LocalDateTime.now();
-        this.use = false;
+        this.usable = false;
     }
 
 }

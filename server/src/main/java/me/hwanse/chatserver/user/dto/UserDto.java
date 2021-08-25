@@ -27,6 +27,6 @@ public class UserDto {
         this.userId = user.getUserId();
         this.createdAt = user.getCreatedAt();
         this.updatedAt = user.getUpdatedAt();
-        this.use = user.isUse();
+        this.use = user.isUsable();
     }
 }

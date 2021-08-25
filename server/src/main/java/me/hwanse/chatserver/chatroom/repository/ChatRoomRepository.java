@@ -9,6 +9,6 @@ import java.util.List;
 @Transactional(readOnly = true)
 public interface ChatRoomRepository extends JpaRepository<ChatRoom, Long> {
 
-    List<ChatRoom> findByUseTrueOrderByCreatedAtDesc();
+    List<ChatRoom> findByUsableTrueOrderByCreatedAtDesc();
 
 }
