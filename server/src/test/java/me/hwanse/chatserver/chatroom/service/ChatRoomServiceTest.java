@@ -12,7 +12,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.util.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 
@@ -56,7 +55,7 @@ class ChatRoomServiceTest {
             chatRooms.add(new ChatRoom(TITLE + (i + 1), USER_ID));
         }
 
-        given(chatRoomRepository.findByUseTrueOrderByCreatedAtDesc()).willReturn(chatRooms);
+        given(chatRoomRepository.findByUsableTrueOrderByCreatedAtDesc()).willReturn(chatRooms);
 
         // when
         List<ChatRoom> findChatRooms = chatRoomService.findAllChatRooms();
@@ -94,7 +93,7 @@ class ChatRoomServiceTest {
         ChatRoom room = chatRoom.get();
 
         // then
-        assertThat(room.isUse()).isFalse();
+        assertThat(room.isUsable()).isFalse();
         assertThat(room.getDeletedAt()).isNotNull();
     }
 

@@ -27,7 +27,7 @@ public class ChatRoomService {
     }
 
     public List<ChatRoom> findAllChatRooms() {
-        return chatRoomRepository.findByUseTrueOrderByCreatedAtDesc();
+        return chatRoomRepository.findByUsableTrueOrderByCreatedAtDesc();
     }
 
     @Transactional

@@ -29,13 +29,14 @@ public class User {
 
     private LocalDateTime updatedAt;
 
-    private boolean use;
+    @Column(name = "use_flag")
+    private boolean usable;
 
     public User(String userId, String password) {
         this.userId = userId;
         this.password = password;
         this.createdAt = LocalDateTime.now();
         this.updatedAt = LocalDateTime.now();
-        this.use = true;
+        this.usable = true;
     }
 }

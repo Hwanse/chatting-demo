@@ -1,13 +1,11 @@
 package me.hwanse.chatserver.chatroom.dto;
 
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import me.hwanse.chatserver.chatroom.ChatRoom;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.format.annotation.DateTimeFormat;
 
 import java.time.LocalDateTime;
 
@@ -42,7 +40,7 @@ public class ChatRoomDto {
         this.userCount = chatRoom.getUserCount();
         this.createdAt = chatRoom.getCreatedAt();
         this.deletedAt = chatRoom.getDeletedAt();
-        this.use = chatRoom.isUse();
+        this.use = chatRoom.isUsable();
         this.managerId = chatRoom.getManagerId();
         this.meManager = StringUtils.equals(chatRoom.getManagerId(), userId);
     }
