@@ -18,15 +18,12 @@ Chat-Server를 활용하기 위한 API 가이드 문서입니다.
 | 환경 | Domain
 
 | 로컬서버
-| `http://localhost:8081/api`
+| `http://localhost:8081/`
 
 | 개발서버
-|
+| `http://34.64.244.142:8081/`
 
 |===
-
-== 공통
-
 
 == 유저
 
