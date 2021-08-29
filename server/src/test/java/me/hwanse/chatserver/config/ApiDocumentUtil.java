@@ -29,8 +29,7 @@ public class ApiDocumentUtil {
         return new FieldDescriptor[] {
             fieldWithPath("success").description("api 요청결과 성공 여부"),
             fieldWithPath("data").description("api 응답 데이터 본문"),
-            fieldWithPath("error").optional().type(
-                JsonFieldType.OBJECT).description("api 에러 내용(에러가 없을경우 null)")
+            fieldWithPath("error").optional().type(JsonFieldType.OBJECT).description("api 에러 내용(에러가 없을경우 null)")
         };
     }
 
