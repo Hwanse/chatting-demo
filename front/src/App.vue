@@ -11,10 +11,11 @@
 <script>
 export default {
   name: "App",
-
   data: () => ({
-    //
   }),
+  mounted() {
+    document.title = "chat-front"
+  }
 };
 </script>
 

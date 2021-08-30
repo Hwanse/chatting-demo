@@ -44,7 +44,7 @@ export default {
                 this.$refs.localAudio.muted = true
                 this.$refs.localAudio.volume = 0
             } catch(error) {
-                console.log("get media error occured : ", error)
+                console.error("get media error occured : ", error)
             }
         },
         createPeerConnection(sessionId, isReceiveOffer) {

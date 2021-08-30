@@ -6,7 +6,7 @@ export default {
             const response = await request.get("/api/chat-room")
             return response.data.data.content
         } catch(error) {
-            console.log(error)
+            console.error(error)
         }
     },
     async createChatRoom(title) {
@@ -15,7 +15,7 @@ export default {
             const response = await request.post('/api/chat-room', chatRoomData)
             return response.data.data
         } catch(error) {
-            console.log(error)
+            console.error(error)
         }
     },
     async getChatRoom(roomId) {
@@ -23,7 +23,7 @@ export default {
             const response = await request.get(`/api/chat-room/${roomId}`)
             return response.data.data
         } catch(error) {
-            console.log(error)
+            console.error(error)
         }
     },
     async disableChatRoom(roomId) {
@@ -31,7 +31,7 @@ export default {
             const response = await request.patch(`/api/chat-room/${roomId}`)
             return response.success
         } catch (error) {
-            console.log(error)
+            console.error(error)
         }
     }
 }
