@@ -13,7 +13,7 @@ export default {
                 request.defaults.headers.common['Authorization'] = token
             }
         } catch(error) {
-            console.log(error)
+            console.error(error)
         }
     },
     async signUp(id, password) {
@@ -22,7 +22,7 @@ export default {
             const response = await request.post("/api/signup", signUpData)
             return response.data.data
         } catch(error) {
-            console.log(error)
+            console.error(error)
         }
     }
 }
