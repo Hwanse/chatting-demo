@@ -1,7 +1,6 @@
 const path = require("path")
 
 module.exports = {
-//   outputDir: path.resolve(__dirname, `../server/src/main/resources/static`),
   devServer: {
     // disableHostCheck: true,
     // public: "0.0.0.0:3000",
@@ -18,6 +17,7 @@ module.exports = {
       }
     },
   },
+
   configureWebpack: {
     resolve: {
       alias: {

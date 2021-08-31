@@ -13,10 +13,11 @@ export default {
                 audio: true
             },
             iceConfig: {
-                "iceServers": [
-                    {"urls": "stun:stun.l.google.com:19302"},
-                    {"urls": "stun:stun1.l.google.com:19302"}
-                ]       
+                iceServers: [
+                    { 
+                        urls: `stun:${process.env.VUE_APP_TURN_SERVER_URL}`
+                    }
+                ]
             },
             connections: [],
             myVoiceStream: null,
@@ -24,6 +25,14 @@ export default {
         }
     },
     mounted() {
+        if (process.env.VUE_APP_MODE === "development") {
+            this.iceConfig.iceServers.push({
+                urls: `turn:${process.env.VUE_APP_TURN_SERVER_URL}`,
+                username: process.env.VUE_APP_TURN_USERNAME,
+                credential: process.env.VUE_APP_TURN_CREDENTIAL
+            })
+        }
+        
         this.bus.$on("connect", this.startVoiceChat)
         this.bus.$on("join", this.userJoinEvent)
         this.bus.$on("signalling", this.getMessageFromSignallingServer)
