@@ -1,4 +1,4 @@
-INSERT INTO CHAT_ROOM(title, manager_id, limit_user_count, user_count, created_at, use)
+INSERT INTO CHAT_ROOM(title, manager_id, limit_user_count, user_count, created_at, use_flag)
 VALUES
     ('채팅방1', 'admin', 5, 0, now(), true),
     ('채팅방2', 'admin', 5, 0, now(), true),
