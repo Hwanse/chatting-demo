@@ -20,8 +20,9 @@ public class ApiDocumentUtil {
     public static OperationRequestPreprocessor getDocumentRequest() {
         return preprocessRequest(
             modifyUris()
+            .scheme("https")
             .host("34.64.244.142")
-            .port(8081)
+            .removePort()
         );
     }
 
