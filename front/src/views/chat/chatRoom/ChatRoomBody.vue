@@ -48,8 +48,13 @@ export default {
 
             // 웹 소켓 스펙 특성상 SockJs API를 활용한 헤더를 조작하여 토큰을 넣어줄수 없다. 따라서 쿼리스트링으로 전달 
             this.websocket = new SockJS(`${location.protocol}//${location.host}/ws/chat?token=Bearer ${token}`)
-            // let options = {debug: false, protocols: Stomp.VERSIONS.supportedProtocols()};
-            this.stompClient = Stomp.over(this.websocket)
+            
+            if (process.env.VUE_APP_MODE === "development") {
+                let options = {debug: false, protocols: Stomp.VERSIONS.supportedProtocols()};
+                this.stompClient = Stomp.over(this.websocket, options)
+            } else {
+                this.stompClient = Stomp.over(this.websocket)
+            }
             
             this.stompClient.connect(this.getAuthorizationHeader(), this.onConnected, this.onConnectError)
         },
@@ -93,8 +98,6 @@ export default {
                 sessionId: this.mySessionId
             } 
             this.stompClient.send("/pub/chat/join", JSON.stringify(data), this.getAuthorizationHeader())
-
-            // TODO 메세지 전송시 서버에서 응답이 없을 경우에 대한 예외처리 필요
         },
         sendMonitoringMessage() {
             this.monitoringInterval = setInterval(() => {
