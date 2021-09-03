@@ -1,12 +1,12 @@
 # chatting-app-demo
 
-### 개요 
+## 개요 
 
 평소에 관심이 있었고 업무에서 개발해보지 못한 웹에서의 실시간 채팅 기능을 개발해보고 싶어서 시작한 토이 프로젝트
 
 <br>
 
-### 목표
+## 목표
 
 1. 서버에서 페이지를 개발하던 방식에서 벗어나 서버에서는 REST API를 반환하고 프론트 기술을 활용하여
    서버에서 받은 리소스를 활용하여 페이지 만들어보자
@@ -15,7 +15,7 @@
 
 <br>
 
-### 사용 기술
+## 사용 기술
 
 **Server**
 - Java 8
@@ -31,22 +31,33 @@
 - Vue, Vue Router, Vuetify
 - Axios, WEB-RTC
 
-<br>
-
-### 구성도
-
-<br>
-
-### API 문서
-
-[링크](http://hschat.ml:8081/docs/index.html)
+**ETC**
+- GCP(GCE)
+- Nginx
+- Coturn
+- MySQL
 
 <br>
 
-### DB ERD
+## 구성도
 
 <br>
 
-### 개발 시 어려웠던 점
+**서버**
+
+![서버 구성도 001](https://user-images.githubusercontent.com/50852963/131971546-8563180c-7f16-4414-861b-f02cece6bed1.png)
+
+**P2P 통신**
+
+![WebRtc-P2P구성도 001](https://user-images.githubusercontent.com/50852963/131971617-69313f50-80bf-46e7-b4bd-192778d10f14.png)
+
+
+<br>
+
+### DEMO & API 문서 링크
+
+[API 링크](http://hschat.ml:8081/docs/index.html)
+
+[Demo 링크](https://hschat.ml/)
 
 <br>
