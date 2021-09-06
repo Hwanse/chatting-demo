@@ -1,4 +1,4 @@
-package me.hwanse.chatserver.chatroom.dto;
+package me.hwanse.chatserver.api.dto.chatroom;
 
 import lombok.Getter;
 import lombok.Setter;
