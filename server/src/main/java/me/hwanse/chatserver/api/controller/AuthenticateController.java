@@ -1,9 +1,8 @@
-package me.hwanse.chatserver.user.controller;
+package me.hwanse.chatserver.api.controller;
 
 import lombok.RequiredArgsConstructor;
-import me.hwanse.chatserver.api.ApiResult;
 import me.hwanse.chatserver.auth.AuthTokenResponse;
-import me.hwanse.chatserver.user.dto.SignInRequest;
+import me.hwanse.chatserver.api.dto.user.SignInRequest;
 import me.hwanse.chatserver.user.service.AuthenticateService;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.Link;

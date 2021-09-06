@@ -1,8 +1,9 @@
-package me.hwanse.chatserver.chatroom.dto;
+package me.hwanse.chatserver.api.dto;
 
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 
-import me.hwanse.chatserver.chatroom.controller.ChatRoomController;
+import me.hwanse.chatserver.api.controller.ChatRoomController;
+import me.hwanse.chatserver.api.dto.chatroom.ChatRoomDto;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.Link;

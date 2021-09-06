@@ -1,8 +1,8 @@
-package me.hwanse.chatserver.chatroom.controller;
+package me.hwanse.chatserver.api.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import me.hwanse.chatserver.chatroom.ChatRoom;
-import me.hwanse.chatserver.chatroom.dto.CreateChatRoomRequest;
+import me.hwanse.chatserver.api.dto.chatroom.CreateChatRoomRequest;
 import me.hwanse.chatserver.chatroom.service.ChatRoomService;
 import me.hwanse.chatserver.config.RestDocsConfig;
 import me.hwanse.chatserver.config.WebTestWithSecurityConfig;
