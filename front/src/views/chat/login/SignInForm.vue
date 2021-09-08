@@ -30,7 +30,8 @@ export default {
     },
     methods: {
         async signIn() {
-            await signApi.signIn(this.id, this.password)
+            const token = await signApi.signIn(this.id, this.password)
+            if (!token) return
             this.goChatListView()
         },
         showSignUpForm() {
