@@ -1,11 +1,11 @@
-package me.hwanse.chatserver.user.controller;
+package me.hwanse.chatserver.api.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import me.hwanse.chatserver.config.RestDocsConfig;
 import me.hwanse.chatserver.config.WebTestWithSecurityConfig;
 import me.hwanse.chatserver.document.user.UserDocumentation;
 import me.hwanse.chatserver.user.User;
-import me.hwanse.chatserver.user.dto.SignUpRequest;
+import me.hwanse.chatserver.api.dto.user.SignUpRequest;
 import me.hwanse.chatserver.user.service.UserService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;

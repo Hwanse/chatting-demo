@@ -1,4 +1,4 @@
-package me.hwanse.chatserver.user.controller;
+package me.hwanse.chatserver.api.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.jsonwebtoken.Jwts;
@@ -8,7 +8,7 @@ import io.jsonwebtoken.security.Keys;
 import me.hwanse.chatserver.config.RestDocsConfig;
 import me.hwanse.chatserver.config.WebTestWithSecurityConfig;
 import me.hwanse.chatserver.document.user.UserDocumentation;
-import me.hwanse.chatserver.user.dto.SignInRequest;
+import me.hwanse.chatserver.api.dto.user.SignInRequest;
 import me.hwanse.chatserver.user.service.AuthenticateService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;

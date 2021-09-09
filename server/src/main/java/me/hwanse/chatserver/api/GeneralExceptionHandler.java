@@ -10,6 +10,8 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.HttpMediaTypeException;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -25,7 +27,8 @@ public class GeneralExceptionHandler {
         return new ResponseEntity<>(ApiResult.ERROR(throwable, status), headers, status);
     }
 
-    @ExceptionHandler({IllegalArgumentException.class, IllegalStateException.class})
+    @ExceptionHandler({IllegalArgumentException.class, IllegalStateException.class,
+        UsernameNotFoundException.class, BadCredentialsException.class})
     public ResponseEntity handleClientBadRequest(Exception e) {
         log.debug("Client bad request exception occurred : {}", e.getMessage(), e);
         return makeErrorResponse(HttpStatus.BAD_REQUEST, e);

@@ -1,6 +1,6 @@
 package me.hwanse.chatserver.config;
 
-import me.hwanse.chatserver.chatroom.dto.ChatRoomDtoToModelConverter;
+import me.hwanse.chatserver.api.dto.ChatRoomDtoToModelConverter;
 import org.springframework.boot.test.autoconfigure.restdocs.RestDocsMockMvcConfigurationCustomizer;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;

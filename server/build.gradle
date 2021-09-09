@@ -6,7 +6,7 @@ plugins {
 }
 
 group = 'me.hwanse'
-version = '0.0.1-SNAPSHOT'
+version = '1.0.0-SNAPSHOT'
 sourceCompatibility = '1.8'
 def p6spyVersion = '1.7.1'
 def querydslVersion = '4.4.0'

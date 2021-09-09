@@ -34,9 +34,7 @@ export default {
         },
         async signUp() {
             const userInfo = await signApi.signUp(this.id, this.password)
-            if (!userInfo) {
-                alert("회원가입 오류")
-            }
+            if (!userInfo) return
             this.cancel()
         }
     }

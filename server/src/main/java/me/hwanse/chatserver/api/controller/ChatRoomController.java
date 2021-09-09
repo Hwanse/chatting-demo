@@ -1,12 +1,11 @@
-package me.hwanse.chatserver.chatroom.controller;
+package me.hwanse.chatserver.api.controller;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import me.hwanse.chatserver.api.ApiResult;
 import me.hwanse.chatserver.chatroom.ChatRoom;
-import me.hwanse.chatserver.chatroom.dto.ChatRoomDto;
-import me.hwanse.chatserver.chatroom.dto.ChatRoomDtoToModelConverter;
-import me.hwanse.chatserver.chatroom.dto.CreateChatRoomRequest;
+import me.hwanse.chatserver.api.dto.chatroom.ChatRoomDto;
+import me.hwanse.chatserver.api.dto.ChatRoomDtoToModelConverter;
+import me.hwanse.chatserver.api.dto.chatroom.CreateChatRoomRequest;
 import me.hwanse.chatserver.chatroom.service.ChatRoomService;
 import org.springframework.hateoas.*;
 import org.springframework.http.ResponseEntity;
