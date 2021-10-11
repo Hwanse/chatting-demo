@@ -50,15 +50,6 @@
 
 ![WebRtc-P2P구성도 001](https://user-images.githubusercontent.com/50852963/131971617-69313f50-80bf-46e7-b4bd-192778d10f14.png)
 
-
-<br>
-
-### DEMO & API 문서 링크
-
-[API 링크](http://hschat.ml:8081/docs/index.html)
-
-[Demo 링크](https://hschat.ml/)
-
 <br>
 
 ### 개발 내용 정리 (작성중)
