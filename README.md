@@ -52,6 +52,3 @@
 
 <br>
 
-### 개발 내용 정리 (작성중)
-
-[Dev Wiki](https://www.notion.so/hwanse/823eefcb4a6c42e69ab6c42ad2c88413)
